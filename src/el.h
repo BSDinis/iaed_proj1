@@ -12,6 +12,8 @@
  *
  */
 
+#include "pos.h"
+
 typedef struct {
   double val;
   pos p;

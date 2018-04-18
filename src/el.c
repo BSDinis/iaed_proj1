@@ -9,10 +9,10 @@
  */
 
 
-#include "pos.h"
+#include "el.h"
 
 /* constructor */
-el init_el(double val, pos p);
+el init_el(double val, pos p)
 {
   el e;
   e.val = val;

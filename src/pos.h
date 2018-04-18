@@ -20,6 +20,9 @@
  * several changes in the program
  */
 
+/* buffer for output string */
+#define MAX_BUFFER_OUT_POS 10000
+
 typedef struct {
   unsigned int i, j;
 } pos;
@@ -29,7 +32,10 @@ typedef struct {
 #define col(a) (a.j)
 
 /* equality */
-#define eq_pos(a, b) (a.i == b.i && a.j == b.j)
+#define eq_pos(a, b) (line(a) == line(b) && col(a) == col(b))
 
 /* constructor */
 pos init_pos(unsigned int i, unsigned int j);
+
+/* output string: exits with error if the output string exceeds buffer */
+char *out_pos(pos p);

@@ -20,8 +20,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
-#include "pos.h"
+//#include "pos.h"
 #include "el.h"
 #include "input.h"
 #include "compress.h"
@@ -42,6 +43,12 @@ typedef struct {
 
 int main(int argc, char *argv[])
 {
+  pos p = init_pos(1234, 1234);
+  // pos q = init_pos(1, 1);
+  printf("line: %u\n", line(p));
+  printf("col: %u\n", col(p));
+  printf("%s is%s equal to %s\n", out_pos(p), (eq_pos(p, p)) ? "" : " not", out_pos(p));
+
   return 0;
 }
 
@@ -58,7 +65,7 @@ sparse init_sparse()
   m.allocd = INIT_SIZE;
   m.list = (el *) malloc(m.allocd * sizeof(el));
   m.zero = 0;
-  m.min = m.max = {0, 0};
+  m.min = m.max = init_pos(0, 0);
   return m;
 }
 
@@ -75,9 +82,10 @@ sparse init_sparse()
  *   2: Successful substitution
  *   3: Space limit reached
  */
+/*
 int add(sparse m, el new)
 {
-  /* find space to put the new element */
+  // find space to put the new element 
   if (m.nelem == m.allocd) {
     m.allocd *= 10;
     if (m.allocd > MAX_N_ELEM) {
@@ -90,7 +98,7 @@ int add(sparse m, el new)
   for (int i = 0; i < m.nelem; i++) {
     if (eq_pos(m.list[i], new)) {
       if (new.val == m.zero) {
-        /* remove element from list */
+        // remove element from list 
         m.nelem--;
         for (int j = i; j < m.nelem; j++) {
           m.list[j] = m.list[j + 1];
@@ -98,7 +106,7 @@ int add(sparse m, el new)
         return 1;
       }
       else {
-        /* change value */
+        // change value 
         m.list[i].val = new.val;
         return 2;
       }
@@ -107,5 +115,6 @@ int add(sparse m, el new)
   m.list[m.nelem++] = new;
   return 0;
 }
+*/
 
 
