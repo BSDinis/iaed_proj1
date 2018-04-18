@@ -20,8 +20,10 @@
  * several changes in the program
  */
 
+#pragma once
+
 /* buffer for output string */
-#define MAX_BUFFER_OUT_POS 10000
+#define BUFFER_OUT_POS 10000
 
 typedef struct {
   unsigned int i, j;

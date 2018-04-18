@@ -24,8 +24,8 @@ pos init_pos(unsigned int i, unsigned int j)
 /* output string */
 char *out_pos(pos p)
 {
-  char *str = (char *) malloc(MAX_BUFFER_OUT_POS * sizeof(char));
-  if (snprintf(str, MAX_BUFFER_OUT_POS, "[%u;%u]", line(p), col(p)) >= MAX_BUFFER_OUT_POS) {
+  char *str = (char *) malloc(BUFFER_OUT_POS * sizeof(char));
+  if (snprintf(str, BUFFER_OUT_POS, "[%u;%u]", line(p), col(p)) >= BUFFER_OUT_POS) {
     perror("pos.c: out_pos: buffer overflow trying to output pos.\n");
     printf("pos.c: out_pos: buffer overflow trying to output pos.\n");
     exit(1);

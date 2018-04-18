@@ -12,6 +12,8 @@
  *
  */
 
+#pragma once
+
 #include "pos.h"
 
 #define BUFFER_OUT_EL (BUFFER_OUT_POS * 2 + 10000)
@@ -22,7 +24,7 @@ typedef struct {
 } el;
 
 /* selectors */
-#define pos(a) (a.pos)
+#define pos(a) (a.p)
 #define val(a) (a.val)
 
 /* equality */

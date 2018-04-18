@@ -22,8 +22,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-//#include "pos.h"
 #include "el.h"
+//#include "pos.h"
 #include "input.h"
 #include "compress.h"
 #include "sort.h"
@@ -43,11 +43,13 @@ typedef struct {
 
 int main(int argc, char *argv[])
 {
-  pos p = init_pos(1234, 1234);
-  // pos q = init_pos(1, 1);
-  printf("line: %u\n", line(p));
-  printf("col: %u\n", col(p));
-  printf("%s is%s equal to %s\n", out_pos(p), (eq_pos(p, p)) ? "" : " not", out_pos(p));
+  pos p = init_pos(6,6);
+  pos q = init_pos(2,3);
+  el e = init_el(9, p);
+  
+  printf("%s is%s equal to %s\n", out_pos(p), (eq_pos(p, q)) ? "" : " not", out_pos(q));
+  printf("%s\n", out_el(e));
+
 
   return 0;
 }

@@ -10,3 +10,5 @@
  * defines the compression capability
  *
  */
+
+#pragma once
