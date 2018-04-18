@@ -14,6 +14,8 @@
 
 #include "pos.h"
 
+#define BUFFER_OUT_EL (BUFFER_OUT_POS * 2 + 10000)
+
 typedef struct {
   double val;
   pos p;
@@ -31,3 +33,6 @@ typedef struct {
 
 /* constructor */
 el init_el(double val, pos p);
+
+/* output string: exits with error if the buffer is exceeded */
+char *out_el(el e);
