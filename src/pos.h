@@ -8,7 +8,7 @@
  * position datatype header file
  *
  * pos: the position of an element in a sparse matrix
- * has a line index, i [unsigned int], and a column index, j [unsigned int]
+ * has a row index, i [unsigned int], and a column index, j [unsigned int]
  *
  * note on the data abstraction: this datatype is simple a tuple with 2 
  * entries that represents a position in the sparse matrix
@@ -22,6 +22,7 @@
 
 #pragma once
 
+// TODO: search for a more precise value, in conformity with specs
 /* buffer for output string */
 #define BUFFER_OUT_POS 10000
 
@@ -30,14 +31,22 @@ typedef struct {
 } pos;
 
 /* selectors */
-#define line(a) (a.i)
+#define row(a) (a.i)
 #define col(a) (a.j)
 
 /* equality */
-#define eq_pos(a, b) (line(a) == line(b) && col(a) == col(b))
+#define eq_pos(a, b) (row(a) == row(b) && col(a) == col(b))
 
 /* constructor */
 pos init_pos(unsigned int i, unsigned int j);
 
 /* output string: exits with error if the output string exceeds buffer */
 char *out_pos(pos p);
+
+/* input from string */
+pos str_to_pos(char *input);
+
+
+/* maximum and minimum */
+pos max_pos(pos a, pos b);
+pos min_pos(pos a, pos b);

@@ -5,7 +5,6 @@
  * Baltasar Dinis 89416
  * IAED project
  *
- * main file
  * defines the sparse datatype that represents a sparse matrix
  * defines several operations on that datatype
  *
@@ -17,62 +16,146 @@
  *   sort
  */
 
+#include "sparse.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
+/* creates new instance of a sparse matrix */
+static sparse init_new_sparse();
 
-#include "el.h"
-//#include "pos.h"
-#include "input.h"
-#include "compress.h"
-#include "sort.h"
+/* loads a sparse matrix */
+static sparse load_sparse(char *filename);
 
-
-#define MAX_N_ELEM 10000
-#define MAX_NAME 80
-#define INIT_SIZE 100
-
-typedef struct {
-  el *list;
-  double zero;
-  pos min, max;
-  size_t nelem;
-  size_t allocd;
-} sparse;
-
-int main(int argc, char *argv[])
+/* computes the density of a matrix */
+double density(sparse m)
 {
-  pos p = init_pos(6,6);
-  pos q = init_pos(2,3);
-  el e = init_el(9, p);
-  
-  printf("%s is%s equal to %s\n", out_pos(p), (eq_pos(p, q)) ? "" : " not", out_pos(q));
-  printf("%s\n", out_el(e));
-
-
-  return 0;
+  unsigned int size = (col(max(m)) - col(min(m)) + 1) * (row(max(m)) - row(min(m)) + 1);
+  return ((double) nelem(m)) / size;
 }
 
 /* 
- * creates a new instance of a sparse matrix
- * TODO: accept a filename as input, load the file into the matrix
+ * initializes a matrix
+ * may take a filename as input, in which case tries to load 
+ * matrix of a *.sm file; if it fails, initializes a new matrix
+ */
+sparse init_sparse(int n, ...)
+{
+  va_list valist;
+  va_start(valist, n);
+
+  /* if there is one argument, a valid file, load the matrix */
+  if (n == 1) {
+    char *filename = va_arg(valist, char *);
+    va_end(valist);
+    if (valid_sm_file(filename)) {
+      return load_sparse(filename);
+    }
+  }
+
+  /* in any other case, create a new instance of the matrix */
+  va_end(valist);
+  return init_new_sparse();
+}
+
+/* 
+ * creates new instance of a sparse matrix 
+ *
+ * the list starts with 100 elements, growing by a factor of 10
+ * each time it is necessary, until it reaches the maximum size
+ *
+ * by omission, the zero is 0 and the min and max position are 
+ * the same: (0, 0).
+ */
+static sparse init_new_sparse()
+{
+  static m;
+
+  allocd(m) = 100;
+  list(m) = malloc(allocd(m) * sizeof(el));
+  zero(m) = 0;
+  nelem(m) = 0; 
+  min(m) = init_pos(0, 0);
+  max(m) = init_pos(0, 0);
+
+  return m;
+}
+
+/* loads a sparse matrix */
+static sparse load_sparse(char *filename)
+{
+  char **input;
+  sparse m;
+  int i;
+
+  /* check for successful input operation */
+  if (file_to_sparse(filename, &input) == 0) {
+    sscanf(input[0], "%d", &allocd(m));
+    sscanf(input[1], "%d", &nelem(m));
+    sscanf(input[2], "%lf", &zero(m));
+
+    list(m) = malloc(allocd(m) * sizeof(el));
+
+    /* if the file has no elements, get the zero and initialize 
+     * an empty matrix and exit*/
+    if (nelem(m) == 0) {
+      min(m) = init_pos(0, 0);
+      max(m) = init_pos(0, 0);
+
+    }
+    else {
+      /* the first element initializes the max and min positions
+       * of the matrix, which are updated by every new input */
+      list(m)[0] = str_to_el(input[3]);
+      min(m) = list(m)[0];
+      max(m) = list(m)[0];
+    }
+
+    for (i = 1; i < nelem; i++) {
+      list(m)[i] = str_to_el(input[3 + i]);
+      max(m) = max_pos(max(m), list(m)[i]);
+      min(m) = min_pos(min(m), list(m)[i]);
+    }
+
+    /* file_to_sparse allocs nelem + 3 (char*) */
+    for (i = 0; i < 3 + nelem(m); free(input[i++]));
+    free(input);
+    return m;
+  }
+
+  /* else returns empty matrix */
+  return init_new_matrix();
+}
+
+
+
+
+/*
+ * given a matrix, returns a list of strings
+ * the first three correspond to the allocated memory, number 
+ * of elements, and value of zero, respectively
+ *
+ * the rest correspond to the elements, in the format of the
+ * element datatype
  *
  */
-sparse init_sparse()
+char **out_sparse(sparse m)
 {
-  sparse m;
+  char **out;
+  int i;
+  
+  out = malloc((nelem(m) + 3) * sizeof(char *));
+  snprintf(out[0], MAX_N_ELEM_BUFF + 1, "%u", allocd(m));
+  snprintf(out[1], MAX_N_ELEM_BUFF + 1, "%u", nelem(m));
+  snprintf(out[2], MAX_FLOAT_BUFFER, "%lf", zero(m));
 
-  m.nelem = 0;         
-  m.allocd = INIT_SIZE;
-  m.list = (el *) malloc(m.allocd * sizeof(el));
-  m.zero = 0;
-  m.min = m.max = init_pos(0, 0);
-  return m;
+  for (i = 0; i < nelem(m); i++) {
+    out[i + 3] = out_el(list(m)[i]);
+  }
+  
+  return out;
 }
 
 
 /*
+ * TODO
  * adds a new element to the matrix
  * if the value is 'zero', removes the value in that position
  * if the position has a value, replace it.
@@ -84,39 +167,5 @@ sparse init_sparse()
  *   2: Successful substitution
  *   3: Space limit reached
  */
-/*
-int add(sparse m, el new)
-{
-  // find space to put the new element 
-  if (m.nelem == m.allocd) {
-    m.allocd *= 10;
-    if (m.allocd > MAX_N_ELEM) {
-      return 3;
-    }
-
-    m.list = (el *) realloc(m.list, m.allocd, sizeof(el));
-  }
-
-  for (int i = 0; i < m.nelem; i++) {
-    if (eq_pos(m.list[i], new)) {
-      if (new.val == m.zero) {
-        // remove element from list 
-        m.nelem--;
-        for (int j = i; j < m.nelem; j++) {
-          m.list[j] = m.list[j + 1];
-        }
-        return 1;
-      }
-      else {
-        // change value 
-        m.list[i].val = new.val;
-        return 2;
-      }
-    }
-  }
-  m.list[m.nelem++] = new;
-  return 0;
-}
-*/
 
 
