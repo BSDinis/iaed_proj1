@@ -22,6 +22,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../pos.h"
 
 int main()
@@ -30,14 +31,17 @@ int main()
   int i, j;
   pos *list;
   pos max, min;
-  FILE *file = fopen("pos_test1.in", "r");
+
   char *input = malloc(BUFFER_OUT_POS * sizeof(int));
 
-  fscanf(file, "%d", &size);
+  fgets(input, BUFFER_OUT_POS, stdin);
+  sscanf(input, "%d", &size);
+
   list = malloc(size * sizeof(pos));
 
   for (i = j = 0; i < size; i++) {
-    if (fgets(input, size, file) != NULL) {
+    if (fgets(input, BUFFER_OUT_POS, stdin) != NULL) {
+      input[strlen(input) - 1] = 0;
       if (valid_pos(input)) {
         printf("%d: valid input\n", i);
         list[j] = str_to_pos(input);
@@ -54,7 +58,6 @@ int main()
       }
     }
   }
-  fclose(file);
   printf("\n");
 
   for (i = 0; i < j; i++) printf("col: %u\n", col(list[i])); 

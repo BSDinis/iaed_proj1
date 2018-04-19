@@ -1,0 +1,43 @@
+0: valid input
+1: valid input
+2: valid input
+3: valid input
+4: valid input
+5: valid input
+6: valid input
+7: valid input
+8: valid input
+9: valid input
+
+col: 4
+col: 43432
+col: 4
+col: 4
+col: 1234
+col: 1234
+col: 2134
+col: 12341234
+col: 4
+col: 1234
+
+row: 2
+row: 1
+row: 1234
+row: 1243
+row: 2
+row: 2
+row: 1234
+row: 6
+row: 1234
+row: 1
+
+[2;4]
+[1;43432]
+[1234;4]
+[1243;4]
+[2;1234]
+[2;1234]
+[1234;2134]
+[6;12341234]
+[1234;4]
+[1;1234]
