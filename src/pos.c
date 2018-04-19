@@ -49,7 +49,7 @@ bool valid_pos(char *str)
   int cnt = 0;
   if (str[i++] != '[') return false;
 
-  while (str[i] != '=' && str[i] != '\0') {
+  while (str[i] != ';' && str[i] != '\0') {
     if (!isdigit(str[i++])) return false; 
     cnt++;
   }
@@ -62,10 +62,8 @@ bool valid_pos(char *str)
     cnt++;
   }
   if (str[i] == '\0' || str[i] != ']' || cnt == 0) return false;
+
   i++;
-
-  if (str[i++] != ']') return false;
-
   return (str[i] == '\0');
 }
 
