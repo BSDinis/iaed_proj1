@@ -12,3 +12,13 @@
  */
 
 #pragma once
+
+#include <stdbool.h>
+
+/* TODO */
+/* checks if the filename has a *.sm extension */
+bool valid_sm_file(char *filename);
+
+/* TODO */
+/* converts a file to a list of strings */
+int file_to_sparse(char *filename, char ***input);

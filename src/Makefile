@@ -2,12 +2,12 @@ CC=gcc
 CFLAGS= -g -Wall -Werror -I.
 LDFLAGS= -lm 
 
-all: sparse
+all: main
 
-menu: sparse.o input.o compress.o sort.o
+main: main.o sparse.o read_write.o compress.o sort.o el.o pos.o
 
 clean:
 	@rm  *.o
 
 clean-all: clean
-	@rm -f menu
+	@rm -f main

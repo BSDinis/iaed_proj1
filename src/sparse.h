@@ -19,8 +19,6 @@
 #include "el.h"
 #include "pos.h"
 #include "read_write.h"
-#include "compress.h"
-#include "sort.h"
 
 
 #define MAX_N_ELEM 10000

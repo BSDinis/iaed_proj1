@@ -46,16 +46,34 @@ char *out_el(el e)
  */
 bool valid_el(char *str)
 {
-  if (str[i] == '\0' || str[i] != '=') return false;
-  i++;
+  int i = 0;
+  int cnt = 0;
 
+  while (str[i] != '=' && str[i] != '\0') i++;
+  if (str[i] == '\0') return false;
+
+  /* truncates string, to find if the substring to the left of the
+   * equal sign is a position */
+  str[i++] = '\0';
+  if (!valid_pos(str)) return false;
+
+  /* may be negative */
+  if (str[i] == '-') i++;
+
+  /* wait for decimal dot, if there is one */
   while(str[i] != '\0' && str[i] != '.') {
     if (!isdigit(str[i++])) return false;
+    cnt++;
   }
 
-  if (str[i++] == '\0') return true;
+  if (str[i] == '\0') return (cnt != 0);
 
-  return (str[i] ==  '\0')
+  while(str[i] != '\0') {
+    if (!isdigit(str[i++])) return false;
+    cnt++;
+  }
+
+  return (cnt != 0);
 }
 
 
@@ -73,5 +91,5 @@ el str_to_el(char *input)
   double val;
   char *pos_str = malloc(BUFFER_OUT_POS * sizeof(char));
   sscanf(input, "%s=%lf", pos_str, &val);
-  return init_el(str_to_pos(pos_str), val);
+  return init_el(val, str_to_pos(pos_str));
 }

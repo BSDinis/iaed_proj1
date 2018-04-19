@@ -15,6 +15,7 @@
 #pragma once
 
 #include "pos.h"
+#include <stdbool.h>
 
 // TODO: search for a more precise value, in conformity with specs
 /* buffer for output string */

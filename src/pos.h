@@ -22,6 +22,9 @@
 
 #pragma once
 
+#include <stdbool.h>
+#include <ctype.h>
+
 // TODO: search for a more precise value, in conformity with specs
 /* buffer for output string */
 #define BUFFER_OUT_POS 10000

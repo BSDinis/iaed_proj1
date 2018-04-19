@@ -11,9 +11,7 @@
  * dependencies:
  *   pos
  *   el
- *   input
- *   compress
- *   sort
+ *   read_write
  */
 
 #include "sparse.h"
@@ -66,7 +64,7 @@ sparse init_sparse(int n, ...)
  */
 static sparse init_new_sparse()
 {
-  static m;
+  sparse m;
 
   allocd(m) = 100;
   list(m) = malloc(allocd(m) * sizeof(el));
@@ -104,14 +102,14 @@ static sparse load_sparse(char *filename)
       /* the first element initializes the max and min positions
        * of the matrix, which are updated by every new input */
       list(m)[0] = str_to_el(input[3]);
-      min(m) = list(m)[0];
-      max(m) = list(m)[0];
+      min(m) = pos(list(m)[0]);
+      max(m) = pos(list(m)[0]);
     }
 
-    for (i = 1; i < nelem; i++) {
+    for (i = 1; i < nelem(m); i++) {
       list(m)[i] = str_to_el(input[3 + i]);
-      max(m) = max_pos(max(m), list(m)[i]);
-      min(m) = min_pos(min(m), list(m)[i]);
+      max(m) = max_pos(max(m), pos(list(m)[i]));
+      min(m) = min_pos(min(m), pos(list(m)[i]));
     }
 
     /* file_to_sparse allocs nelem + 3 (char*) */
@@ -121,7 +119,7 @@ static sparse load_sparse(char *filename)
   }
 
   /* else returns empty matrix */
-  return init_new_matrix();
+  return init_new_sparse();
 }
 
 
