@@ -36,6 +36,39 @@ char *out_pos(pos p)
   return str;
 }
 
+
+/* 
+ * valid string representation of an element 
+ *
+ * checks if a string matches a representation of an position:
+ * [%u;%u]
+ */
+bool valid_pos(char *str)
+{
+  int i = 0;
+  int cnt = 0;
+  if (str[i++] != '[') return false;
+
+  while (str[i] != '=' && str[i] != '\0') {
+    if (!isdigit(str[i++])) return false; 
+    cnt++;
+  }
+  if (str[i] == '\0' || str[i] != ';' || cnt == 0) return false;
+  i++;
+
+  cnt = 0;
+  while (str[i] != ']' && str[i] != '\0') {
+    if (!isdigit(str[i++])) return false;
+    cnt++;
+  }
+  if (str[i] == '\0' || str[i] != ']' || cnt == 0) return false;
+  i++;
+
+  if (str[i++] != ']') return false;
+
+  return (str[i] == '\0');
+}
+
 /* 
  * input from string 
  * given a string of the format: [<row>;<col>]

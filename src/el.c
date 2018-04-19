@@ -42,24 +42,10 @@ char *out_el(el e)
  * valid string representation of an element
  *
  * checks if a string matches a representation of an element:
- * [%u;%u]=%lf
+ * <pos>=%lf
  */
 bool valid_el(char *str)
 {
-  int i = 0;
-  if (str[i++] != '[') return false;
-
-  while (str[i] != '=' && str[i] != '\0') {
-    if (!isdigit(str[i++])) return false; 
-  }
-  if (str[i] == '\0' || str[i] != ';') return false;
-  i++;
-
-  while (str[i] != ']' && str[i] != '\0') {
-    if (!isdigit(str[i++])) return false;
-  }
-  if (str[i] == '\0' || str[i] != ']') return false;
-  i++;
   if (str[i] == '\0' || str[i] != '=') return false;
   i++;
 
@@ -69,11 +55,7 @@ bool valid_el(char *str)
 
   if (str[i++] == '\0') return true;
 
-  while(str[i] !=  '\0') {
-    if (!isdigit(str[i++])) return false;
-  }
-
-  return true;
+  return (str[i] ==  '\0')
 }
 
 

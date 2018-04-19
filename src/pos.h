@@ -43,9 +43,11 @@ pos init_pos(unsigned int i, unsigned int j);
 /* output string: exits with error if the output string exceeds buffer */
 char *out_pos(pos p);
 
+/* valid string representation of an element */
+bool valid_pos(char *str);
+
 /* input from string */
 pos str_to_pos(char *input);
-
 
 /* maximum and minimum */
 pos max_pos(pos a, pos b);
