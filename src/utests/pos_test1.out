@@ -1,13 +1,23 @@
-0: valid input
-1: valid input
-2: valid input
-3: valid input
-4: valid input
-5: valid input
-6: valid input
-7: valid input
-8: valid input
-9: valid input
+1: [2;4] -> valid input
+2: [1;43432] -> valid input
+3: [1234;4] -> valid input
+4: [1243;4] -> valid input
+5: [2;1234] -> valid input
+6: [2;1234] -> valid input
+7: [1234;2134] -> valid input
+8: [6;12341234] -> valid input
+9: [1234;4] -> valid input
+10: [1;1234] -> valid input
+
+[2;4] != [1;43432]
+[1;43432] != [1234;4]
+[1234;4] != [1243;4]
+[1243;4] != [2;1234]
+[2;1234] == [2;1234]
+[2;1234] != [1234;2134]
+[1234;2134] != [6;12341234]
+[6;12341234] != [1234;4]
+[1234;4] != [1;1234]
 
 col: 4
 col: 43432
@@ -41,3 +51,7 @@ row: 1
 [6;12341234]
 [1234;4]
 [1;1234]
+
+
+max: [1243;12341234]
+min: [1;4]

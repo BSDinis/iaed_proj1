@@ -31,19 +31,18 @@ int main()
   int i, j;
   pos *list;
   pos max, min;
-
   char *input = malloc(BUFFER_OUT_POS * sizeof(int));
 
   fgets(input, BUFFER_OUT_POS, stdin);
   sscanf(input, "%d", &size);
-
   list = malloc(size * sizeof(pos));
 
   for (i = j = 0; i < size; i++) {
     if (fgets(input, BUFFER_OUT_POS, stdin) != NULL) {
       input[strlen(input) - 1] = 0;
       if (valid_pos(input)) {
-        printf("%d: valid input\n", i);
+
+        printf("%d: %s -> valid input\n", i + 1, input);
         list[j] = str_to_pos(input);
 
         if (j == 0) {
@@ -54,17 +53,25 @@ int main()
         j++;
       }
       else {
-        printf("%d: invalid input\n", i);
+        printf("%d: %s -> invalid input\n", i + 1, input);
       }
     }
   }
   printf("\n");
 
+  for (i = 1; i < j; i++) {
+    printf("%s %s %s\n", out_pos(list[i - 1]), (eq_pos(list[i - 1], list[i])) ? "==" : "!=", out_pos(list[i]));
+  }
+  printf("\n");
   for (i = 0; i < j; i++) printf("col: %u\n", col(list[i])); 
   printf("\n");
   for (i = 0; i < j; i++) printf("row: %u\n", row(list[i])); 
   printf("\n");
   for (i = 0; i < j; i++) printf("%s\n", out_pos(list[i])); 
+  printf("\n");
+  printf("\n");
+  printf("max: %s\nmin: %s\n", out_pos(max), out_pos(min));
+
 
   return 0;
 }

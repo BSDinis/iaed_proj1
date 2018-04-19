@@ -31,10 +31,10 @@ typedef struct {
 #define val(a) (a.val)
 
 /* equality */
-#define eq_el(a, b) (pos(a) == pos(b) && val(a) == val(b))
+#define eq_el(a, b) (eq_pos(pos(a), pos(b)) && val(a) == val(b))
 
 /* comparison: operates on the value */
-#define less_l(a, b) (val(a) < val(b))
+#define less_el(a, b) (val(a) < val(b))
 
 /* constructor */
 el init_el(double val, pos p);

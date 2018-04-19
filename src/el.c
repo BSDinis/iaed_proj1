@@ -19,8 +19,8 @@
 el init_el(double val, pos p)
 {
   el e;
-  e.val = val;
-  e.p = p;
+  val(e) = val;
+  pos(e) = p;
   return e;
 }
 
@@ -54,8 +54,11 @@ bool valid_el(char *str)
 
   /* truncates string, to find if the substring to the left of the
    * equal sign is a position */
-  str[i++] = '\0';
+  str[i] = '\0';
   if (!valid_pos(str)) return false;
+
+  /* repositions the equal sign, for out_el */
+  str[i++] = '=';
 
   /* may be negative */
   if (str[i] == '-') i++;
@@ -66,7 +69,7 @@ bool valid_el(char *str)
     cnt++;
   }
 
-  if (str[i] == '\0') return (cnt != 0);
+  if (str[i++] == '\0') return (cnt != 0);
 
   while(str[i] != '\0') {
     if (!isdigit(str[i++])) return false;
@@ -90,6 +93,17 @@ el str_to_el(char *input)
 {
   double val;
   char *pos_str = malloc(BUFFER_OUT_POS * sizeof(char));
-  sscanf(input, "%s=%lf", pos_str, &val);
+
+  int i = 0;
+  while (input[i] != '=') {
+    pos_str[i] = input[i];
+    i++;
+  }
+
+  /* 
+   * the double starts after the =, which is in the 
+   * (i + 1) th position
+   */
+  sscanf(input + i + 1, "%lf", &val);
   return init_el(val, str_to_pos(pos_str));
 }
