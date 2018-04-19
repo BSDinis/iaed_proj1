@@ -13,6 +13,10 @@
  *   el
  */
 
+/* Note to self: there may be some issues with your mem management
+ * In particular your liberal usage of assignments and not cleaning up 
+ * after yourself when using auxiliar sparse matrices */  
+
 #include "sparse.h"
 
 /* creates new instance of a sparse matrix */
@@ -110,6 +114,7 @@ bool valid_sm_file(char *filename)
 int file_to_sparse(char *filename, sparse *m)
 {
   FILE *fp;
+  sparse aux;
   
   if (!valid_sm_file(filename)) {
     *m = init_new_sparse();
@@ -128,13 +133,14 @@ int file_to_sparse(char *filename, sparse *m)
   }
     
   /* if the file has no elements, return */
-  if (nelem(m) == 0) {
+  aux = *m;
+  if (nelem(aux) == 0) {
     fclose(fp);
     return 0;
   }
   /* otherwise, get the list of values */
   else {
-    get_el_list(fp, sparse *m);
+    get_el_list(fp, m);
   }
 
   fclose(fp);
@@ -157,40 +163,43 @@ int file_to_sparse(char *filename, sparse *m)
 static int get_sparse_values(FILE *stream, sparse *m)
 {
   char *input = malloc(BUFFER_OUT_EL * sizeof(char));
+  sparse aux = *m;
 
   if (fgets(input, BUFFER_OUT_EL, stream) == NULL) {
     free(input);
     return 1;
   }
-  sscanf(input, "%d", &allocd(*m));
+  sscanf(input, "%d", &allocd(aux));
 
   if (fgets(input, BUFFER_OUT_EL, stream) == NULL) {
     free(input);
     return 1;
   }
-  sscanf(input, "%d", &nelem(*m));
+  sscanf(input, "%d", &nelem(aux));
 
-  if (!(allocd(*m) >= 100 && allocd(*m) <= MAX_N_ELEM && allocd(*m) % 10 == 0)
-      || nelem(*m) > allocd(*m)) {
+  if (!(allocd(aux) >= 100 && allocd(aux) <= MAX_N_ELEM && allocd(aux) % 10 == 0)
+      || nelem(aux) > allocd(aux)) {
     free(input);
     return 1;
   }
 
   if (fgets(input, BUFFER_OUT_EL, stream) == NULL) {
     free(input);
+    free_sparse(aux);
     return 1;
   }
-  sscanf(input, "%lf", &zero(*m));
+  sscanf(input, "%lf", &zero(aux));
 
 
-  list(*m) = malloc(allocd(*m) * sizeof(el));
+  list(aux) = malloc(allocd(aux) * sizeof(el));
 
   /* if the file has no elements, initialize an empty matrix */
-  if (nelem(*m) == 0) {
-    min(*m) = init_pos(0, 0);
-    max(*m) = init_pos(0, 0);
+  if (nelem(aux) == 0) {
+    min(aux) = init_pos(0, 0);
+    max(aux) = init_pos(0, 0);
   }
 
+  *m = aux;
   free(input);
   return 0;
 }
@@ -210,6 +219,7 @@ static int get_el_list(FILE *stream, sparse *m)
 {
   int i;
   char *input = malloc(BUFFER_OUT_EL * sizeof(char));
+  sparse aux = *m;
 
   /* sanity checks */
   if (fgets(input, BUFFER_OUT_EL, stream) == NULL || !valid_el(input)) {
@@ -219,21 +229,22 @@ static int get_el_list(FILE *stream, sparse *m)
 
   /* the first element initializes the max and min positions
    * of the matrix, which are updated by every new input */
-  list(*m)[0] = str_to_el(input);
-  min(*m) = pos(list(*m)[0]);
-  max(*m) = pos(list(*m)[0]);
+  list(aux)[0] = str_to_el(input);
+  min(aux) = pos(list(aux)[0]);
+  max(aux) = pos(list(aux)[0]);
 
-  for (i = 1; i < nelem(*m); i++) {
+  for (i = 1; i < nelem(aux); i++) {
     if (fgets(input, BUFFER_OUT_EL, stream) == NULL || !valid_el(input)) {
       free(input);
       return 1;
     }                  
 
-    list(*m)[i] = str_to_el(input);
-    max(*m) = max_pos(max(*m), pos(list(*m)[i]));
-    min(*m) = min_pos(min(*m), pos(list(*m)[i]));
+    list(aux)[i] = str_to_el(input);
+    max(aux) = max_pos(max(aux), pos(list(aux)[i]));
+    min(aux) = min_pos(min(aux), pos(list(aux)[i]));
   }
 
+  *m = aux;
   free(input);
   return 0;
 }
