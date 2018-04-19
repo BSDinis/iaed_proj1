@@ -14,11 +14,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include <stdarg.h>
 
 #include "el.h"
 #include "pos.h"
-#include "read_write.h"
 
 
 #define MAX_N_ELEM 10000
@@ -59,6 +59,9 @@ typedef struct {
 /* computes the density of a matrix */
 double density(sparse m);
 
+
+/* constructor */
+
 /* 
  * initializes a matrix
  * may take a filename as input, in which case tries to load 
@@ -69,13 +72,15 @@ double density(sparse m);
  */
 sparse init_sparse(int n, ...);
 
+/* checks if the filename has a *.sm extension */
+bool valid_sm_file(char *filename);
 
-/*
- * given a matrix, returns a list of strings
- * the first two correspond to the allocated memory and number 
- * of elements, respectively
- *
- * the rest correspond to the elements, in the format of the
- * element datatype
- */
-char **out_sparse(sparse m);
+/* converts a file to a sparse matrix */
+int file_to_sparse(char *filename, sparse *m);
+
+/* destructor */
+void free_sparse(sparse m);
+
+/* exporting */
+/* converts a matrix into a file */
+void sparse_to_file(sparse m, char *filename);

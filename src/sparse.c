@@ -11,7 +11,6 @@
  * dependencies:
  *   pos
  *   el
- *   read_write
  */
 
 #include "sparse.h"
@@ -19,8 +18,13 @@
 /* creates new instance of a sparse matrix */
 static sparse init_new_sparse();
 
-/* loads a sparse matrix */
-static sparse load_sparse(char *filename);
+/* dependency of file_to_sparse
+ * gets the first three values from the *.sm file */
+static int get_sparse_values(FILE *stream, sparse *m);
+
+/* dependency of file_to_sparse
+ * gets the of elements from the *.sm file */
+static int get_el_list(FILE *stream, sparse *m);
 
 /* computes the density of a matrix */
 double density(sparse m)
@@ -36,6 +40,7 @@ double density(sparse m)
  */
 sparse init_sparse(int n, ...)
 {
+  sparse m;
   va_list valist;
   va_start(valist, n);
 
@@ -43,9 +48,8 @@ sparse init_sparse(int n, ...)
   if (n == 1) {
     char *filename = va_arg(valist, char *);
     va_end(valist);
-    if (valid_sm_file(filename)) {
-      return load_sparse(filename);
-    }
+    file_to_sparse(filename, &m);
+    return m;
   }
 
   /* in any other case, create a new instance of the matrix */
@@ -76,79 +80,205 @@ static sparse init_new_sparse()
   return m;
 }
 
-/* loads a sparse matrix */
-static sparse load_sparse(char *filename)
+
+/* checks if the filename has a *.sm extension */
+bool valid_sm_file(char *filename)
 {
-  char **input;
-  sparse m;
-  int i;
+  int i = strlen(filename);
 
-  /* check for successful input operation */
-  if (file_to_sparse(filename, &m) == 0) {
-    sscanf(input[0], "%d", &allocd(m));
-    sscanf(input[1], "%d", &nelem(m));
-    sscanf(input[2], "%lf", &zero(m));
+  /* minimal filename: a.sm -> 4 chars */
+  if (i < 4) return false;
 
-    list(m) = malloc(allocd(m) * sizeof(el));
+  /* position i on the dot */
+  i -= 3;
+  
+  /* the last three characters must be ".sm" */
+  return strcmp(filename + i, ".sm");
+}
 
-    /* if the file has no elements, get the zero and initialize 
-     * an empty matrix and exit*/
-    if (nelem(m) == 0) {
-      min(m) = init_pos(0, 0);
-      max(m) = init_pos(0, 0);
-
-    }
-    else {
-      /* the first element initializes the max and min positions
-       * of the matrix, which are updated by every new input */
-      list(m)[0] = str_to_el(input[3]);
-      min(m) = pos(list(m)[0]);
-      max(m) = pos(list(m)[0]);
-    }
-
-    for (i = 1; i < nelem(m); i++) {
-      list(m)[i] = str_to_el(input[3 + i]);
-      max(m) = max_pos(max(m), pos(list(m)[i]));
-      min(m) = min_pos(min(m), pos(list(m)[i]));
-    }
-
-    /* file_to_sparse allocs nelem + 3 (char*) */
-    for (i = 0; i < 3 + nelem(m); free(input[i++]));
-    free(input);
-    return m;
+/* 
+ * converts a file to a sparse matrix
+ * the coversion is atomic: 
+ * the function either coverts the whole file or initializes
+ * the matrix as an empty, returning the error function
+ *
+ * return codes:
+ *   0: sucessful coversion
+ *   1: unsucessful coversion
+ *  
+ */
+int file_to_sparse(char *filename, sparse *m)
+{
+  FILE *fp;
+  
+  if (!valid_sm_file(filename)) {
+    *m = init_new_sparse();
+    return 1;
   }
 
-  /* else returns empty matrix */
-  return init_new_sparse();
+  fp = fopen(filename, "r");
+
+  /* gets the allocd, nelem and zero values,
+   * allocates memory for the list,
+   * initializes the max and min */
+  if (get_sparse_values(fp, m) == 1) {
+    *m = init_new_sparse();
+    fclose(fp);
+    return 1;
+  }
+    
+  /* if the file has no elements, return */
+  if (nelem(m) == 0) {
+    fclose(fp);
+    return 0;
+  }
+  /* otherwise, get the list of values */
+  else {
+    get_el_list(fp, sparse *m);
+  }
+
+  fclose(fp);
+  return 0;
+}
+
+/*
+ * dependency of file_to_sparse
+ *
+ * gets the first three values from the *.sm file
+ * allocd, nelem, zero
+ *
+ * initializes the list
+ * initializes the min and max
+ *
+ * return codes:
+ *   0: all well, proceed
+ *   1: abort file_to_sparse execution
+ */
+static int get_sparse_values(FILE *stream, sparse *m)
+{
+  char *input = malloc(BUFFER_OUT_EL * sizeof(char));
+
+  if (fgets(input, BUFFER_OUT_EL, stream) == NULL) {
+    free(input);
+    return 1;
+  }
+  sscanf(input, "%d", &allocd(*m));
+
+  if (fgets(input, BUFFER_OUT_EL, stream) == NULL) {
+    free(input);
+    return 1;
+  }
+  sscanf(input, "%d", &nelem(*m));
+
+  if (!(allocd(*m) >= 100 && allocd(*m) <= MAX_N_ELEM && allocd(*m) % 10 == 0)
+      || nelem(*m) > allocd(*m)) {
+    free(input);
+    return 1;
+  }
+
+  if (fgets(input, BUFFER_OUT_EL, stream) == NULL) {
+    free(input);
+    return 1;
+  }
+  sscanf(input, "%lf", &zero(*m));
+
+
+  list(*m) = malloc(allocd(*m) * sizeof(el));
+
+  /* if the file has no elements, initialize an empty matrix */
+  if (nelem(*m) == 0) {
+    min(*m) = init_pos(0, 0);
+    max(*m) = init_pos(0, 0);
+  }
+
+  free(input);
+  return 0;
 }
 
 
+/*
+ * dependency of file_to_sparse
+ *
+ * gets the list of elements
+ * updates continuously the max and min
+ *
+ * return codes:
+ *   0: all well, proceed
+ *   1: abort file_to_sparse execution
+ */
+static int get_el_list(FILE *stream, sparse *m)
+{
+  int i;
+  char *input = malloc(BUFFER_OUT_EL * sizeof(char));
 
+  /* sanity checks */
+  if (fgets(input, BUFFER_OUT_EL, stream) == NULL || !valid_el(input)) {
+    free(input);
+    return 1;
+  }                  
+
+  /* the first element initializes the max and min positions
+   * of the matrix, which are updated by every new input */
+  list(*m)[0] = str_to_el(input);
+  min(*m) = pos(list(*m)[0]);
+  max(*m) = pos(list(*m)[0]);
+
+  for (i = 1; i < nelem(*m); i++) {
+    if (fgets(input, BUFFER_OUT_EL, stream) == NULL || !valid_el(input)) {
+      free(input);
+      return 1;
+    }                  
+
+    list(*m)[i] = str_to_el(input);
+    max(*m) = max_pos(max(*m), pos(list(*m)[i]));
+    min(*m) = min_pos(min(*m), pos(list(*m)[i]));
+  }
+
+  free(input);
+  return 0;
+}
+
+
+/* destructor */
+void free_sparse(sparse m)
+{
+  free(list(m));
+}
+
+/* exporting */
 
 /*
- * given a matrix, returns a list of strings
- * the first three correspond to the allocated memory, number 
- * of elements, and value of zero, respectively
+ * converts a matrix into a file
  *
- * the rest correspond to the elements, in the format of the
- * element datatype
+ * checks if the filename is valid.
+ * if it isn't make it so, by adding the *.sm extension
+ *
+ * saves the matrix to file as it will be read:
+ * the first three lines are the allocd, nelem and zero values
+ * the proceding nelem lines are the elements
  *
  */
-char **out_sparse(sparse m)
+void sparse_to_file(sparse m, char *filename)
 {
-  char **out;
+  FILE *fp;
   int i;
+  int len = strlen(filename);
+
+  if (!valid_sm_file(filename)) {
+    len += 3;
+    filename = (char *) realloc(filename, len + 3);
+    filename = strcat(filename, ".sm");
+  }
+
+  fp = fopen(filename, "w");
   
-  out = malloc((nelem(m) + 3) * sizeof(char *));
-  snprintf(out[0], MAX_N_ELEM_BUFF + 1, "%u", allocd(m));
-  snprintf(out[1], MAX_N_ELEM_BUFF + 1, "%u", nelem(m));
-  snprintf(out[2], MAX_FLOAT_BUFFER, "%lf", zero(m));
+  fprintf(fp, "%u\n", allocd(m));
+  fprintf(fp, "%u\n", nelem(m));
+  fprintf(fp, "%lf\n", zero(m));
 
   for (i = 0; i < nelem(m); i++) {
-    out[i + 3] = out_el(list(m)[i]);
+    fprintf(fp, "%s\n", out_el(list(m)[i]));
   }
-  
-  return out;
 }
 
 
