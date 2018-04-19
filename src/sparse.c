@@ -84,7 +84,7 @@ static sparse load_sparse(char *filename)
   int i;
 
   /* check for successful input operation */
-  if (file_to_sparse(filename, &input) == 0) {
+  if (file_to_sparse(filename, &m) == 0) {
     sscanf(input[0], "%d", &allocd(m));
     sscanf(input[1], "%d", &nelem(m));
     sscanf(input[2], "%lf", &zero(m));

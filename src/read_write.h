@@ -13,12 +13,13 @@
 
 #pragma once
 
+#include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
+#include "sparse.h"
 
-/* TODO */
 /* checks if the filename has a *.sm extension */
 bool valid_sm_file(char *filename);
 
-/* TODO */
-/* converts a file to a list of strings */
-int file_to_sparse(char *filename, char ***input);
+/* converts a file to a sparse matrix */
+int file_to_sparse(char *filename, sparse *m);

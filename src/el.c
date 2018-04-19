@@ -102,7 +102,7 @@ el str_to_el(char *input)
 
   /* 
    * the double starts after the =, which is in the 
-   * (i + 1) th position
+   * (i + 1) th position of the input string
    */
   sscanf(input + i + 1, "%lf", &val);
   return init_el(val, str_to_pos(pos_str));
