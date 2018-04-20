@@ -51,3 +51,6 @@ void out_el(el e, char *out);
  * (out must be initialized with the same size)
  */
 void save_el(el e, char *out);
+
+/* get element from string */
+el str_to_el(char *input);

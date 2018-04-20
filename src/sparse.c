@@ -26,13 +26,8 @@
 /* creates new instance of a sparse matrix */
 static sparse init_new_sparse();
 
-/* dependency of file_to_sparse
- * gets the first three values from the *.sm file */
-static int get_sparse_values(FILE *stream, sparse *m);
-
-/* dependency of file_to_sparse
- * gets the of elements from the *.sm file */
-static int get_el_list(FILE *stream, sparse *m);
+/* converts a file to a sparse matrix */
+static sparse file_to_sparse(char *filename);
 
 /* removes element from a position in the list */
 static void remove_at(sparse *m, unsigned index);
@@ -54,7 +49,6 @@ static void remove_mult(sparse *m, unsigned index[], unsigned len);
  */
 sparse init_sparse(int n, ...)
 {
-  sparse m;
   va_list valist;
   va_start(valist, n);
 
@@ -62,8 +56,7 @@ sparse init_sparse(int n, ...)
   if (n == 1) {
     char *filename = va_arg(valist, char *);
     va_end(valist);
-    file_to_sparse(filename, &m);
-    return m;
+    return file_to_sparse(filename);
   }
 
   /* in any other case, create a new instance of the matrix */
@@ -84,8 +77,6 @@ static sparse init_new_sparse()
 {
   sparse m;
 
-  allocd(m) = 100;
-  list(m) = malloc(allocd(m) * sizeof(el));
   zero(m) = 0;
   nelem(m) = 0; 
   min(m) = init_pos(0, 0);
@@ -112,158 +103,32 @@ bool valid_sm_file(char *filename)
 
 /* 
  * converts a file to a sparse matrix
- * the coversion is atomic: 
- * the function either coverts the whole file or initializes
- * the matrix as an empty, returning the error function
+ * if the filename is not valid, return an empty matrix
  *
  * return codes:
  *   0: sucessful coversion
  *   1: unsucessful coversion
  *  
  */
-int file_to_sparse(char *filename, sparse *m)
+static sparse file_to_sparse(char *filename)
 {
   FILE *fp;
-  sparse aux;
-  
+  sparse m = init_new_sparse();
+  char input[BUFFER_OUT_EL];
+
   if (!valid_sm_file(filename)) {
-    *m = init_new_sparse();
-    return 1;
+    return m;
   }
 
   fp = fopen(filename, "r");
 
-  /* gets the allocd, nelem and zero values,
-   * allocates memory for the list,
-   * initializes the max and min */
-  if (get_sparse_values(fp, m) == 1) {
-    *m = init_new_sparse();
-    fclose(fp);
-    return 1;
-  }
-    
-  /* if the file has no elements, return */
-  aux = *m;
-  if (nelem(aux) == 0) {
-    fclose(fp);
-    return 0;
-  }
-  /* otherwise, get the list of values */
-  else {
-    get_el_list(fp, m);
-  }
+  /* get the input until
+   * the maxsize of the sparse is reached 
+   * the fgets unsuccessfully returns */
+  while (fgets(input, BUFFER_OUT_EL, fp) != NULL && add_el(&m, str_to_el(input)));
 
   fclose(fp);
-  return 0;
-}
-
-/*
- * dependency of file_to_sparse
- *
- * gets the first three values from the *.sm file
- * allocd, nelem, zero
- *
- * initializes the list
- * initializes the min and max
- *
- * return codes:
- *   0: all well, proceed
- *   1: abort file_to_sparse execution
- */
-static int get_sparse_values(FILE *stream, sparse *m)
-{
-  char *input = malloc(BUFFER_OUT_EL * sizeof(char));
-  sparse aux = *m;
-
-  if (fgets(input, BUFFER_OUT_EL, stream) == NULL) {
-    free(input);
-    return 1;
-  }
-  sscanf(input, "%d", &allocd(aux));
-
-  if (fgets(input, BUFFER_OUT_EL, stream) == NULL) {
-    free(input);
-    return 1;
-  }
-  sscanf(input, "%d", &nelem(aux));
-
-  if (!(allocd(aux) >= 100 && allocd(aux) <= MAX_N_ELEM && allocd(aux) % 10 == 0)
-      || nelem(aux) > allocd(aux)) {
-    free(input);
-    return 1;
-  }
-
-  if (fgets(input, BUFFER_OUT_EL, stream) == NULL) {
-    free(input);
-    free_sparse(aux);
-    return 1;
-  }
-  sscanf(input, "%lf", &zero(aux));
-
-
-  list(aux) = malloc(allocd(aux) * sizeof(el));
-
-  /* if the file has no elements, initialize an empty matrix */
-  if (nelem(aux) == 0) {
-    min(aux) = init_pos(0, 0);
-    max(aux) = init_pos(0, 0);
-  }
-
-  *m = aux;
-  free(input);
-  return 0;
-}
-
-
-/*
- * dependency of file_to_sparse
- *
- * gets the list of elements
- * updates continuously the max and min
- *
- * return codes:
- *   0: all well, proceed
- *   1: abort file_to_sparse execution
- */
-static int get_el_list(FILE *stream, sparse *m)
-{
-  int i;
-  char *input = malloc(BUFFER_OUT_EL * sizeof(char));
-  sparse aux = *m;
-
-  /* sanity checks */
-  if (fgets(input, BUFFER_OUT_EL, stream) == NULL || !valid_el(input)) {
-    free(input);
-    return 1;
-  }                  
-
-  /* the first element initializes the max and min positions
-   * of the matrix, which are updated by every new input */
-  list(aux)[0] = str_to_el(input);
-  min(aux) = pos(list(aux)[0]);
-  max(aux) = pos(list(aux)[0]);
-
-  for (i = 1; i < nelem(aux); i++) {
-    if (fgets(input, BUFFER_OUT_EL, stream) == NULL || !valid_el(input)) {
-      free(input);
-      return 1;
-    }                  
-
-    list(aux)[i] = str_to_el(input);
-    max(aux) = max_pos(max(aux), pos(list(aux)[i]));
-    min(aux) = min_pos(min(aux), pos(list(aux)[i]));
-  }
-
-  *m = aux;
-  free(input);
-  return 0;
-}
-
-
-/* destructor */
-void free_sparse(sparse m)
-{
-  free(list(m));
+  return m;
 }
 
 /* exporting */
@@ -280,25 +145,26 @@ void free_sparse(sparse m)
  *
  */
 void sparse_to_file(sparse m, char *filename)
-{
+{                                                                   
   FILE *fp;
-  int i;
+  int i;                                                            
   int len = strlen(filename);
+  char str[BUFFER_OUT_EL];
 
+  /* if filename isn't valid, check if there is space to add the 
+   * extension. if there isn't, overwrite the last characters */
   if (!valid_sm_file(filename)) {
-    len += 3;
-    filename = (char *) realloc(filename, (len + 3) * sizeof(char));
+    if (len >= MAX_FILENAME - 3) {
+      filename[MAX_FILENAME - 3] = '\0';
+    }
     filename = strcat(filename, ".sm");
   }
 
   fp = fopen(filename, "w");
   
-  fprintf(fp, "%u\n", allocd(m));
-  fprintf(fp, "%u\n", nelem(m));
-  fprintf(fp, "%lf\n", zero(m));
-
   for (i = 0; i < nelem(m); i++) {
-    fprintf(fp, "%s\n", out_el(list(m)[i]));
+    save_el(list(m)[i], str);
+    fprintf(fp, "%s\n", str);
   }
 }
 
@@ -316,52 +182,51 @@ void sparse_to_file(sparse m, char *filename)
  */
 int add_el(sparse *m, el e)
 {
-  sparse aux = *m;
   int i;
 
-  /* check if there is an equivalent position in the matrix
+
+  /* if the matrix is empty and the value is not zero, 
+   * initialize the min and max */
+  if (empty_sparse(*m) && val(e) != zero(*m)) {
+    min(*m) = max(*m) = pos(e);
+    list(*m)[nelem(*m)++] = e;
+    return 0;
+  }
+
+  /* check if there is an element with the same position in the matrix
    *
    * if there is, replace or remove and exit.
    * important property: there aren't repeated positions
    */
-
   /* quick check */
-  if (row(pos(e)) < row(min(aux)) && row(pos(e)) > row(max(aux)) &&
-        col(pos(e)) < row(min(aux)) && col(pos(e)) > col(max(aux))) {
+  if (row(pos(e)) < row(min(*m)) && row(pos(e)) > row(max(*m)) &&
+        col(pos(e)) < row(min(*m)) && col(pos(e)) > col(max(*m))) {
 
-    for (i = 0; i < nelem(aux) && !eq_pos(pos(e), pos(list(aux)[i])); i++);
+    for (i = 0; i < nelem(*m) && !eq_pos(pos(e), pos(list(*m)[i])); i++);
 
-    if (i != nelem(aux)) {
-      if(val(e) == zero(aux)) {
+    if (i != nelem(*m)) {
+      if(val(e) == zero(*m)) {
         remove_at(m, i);
         return 0;
       }
       else {
-        val(list(aux)[i]) = val(e);
-        *m = aux;
+        val(list(*m)[i]) = val(e);
         return 0;
       }
     }
   }
   
-  if (val(e) != zero(aux)) {
-    if (nelem(aux) == allocd(aux)) {
-      if (allocd(aux) < MAX_N_ELEM) {
-        /* get more space and append the element */
-        allocd(aux) *= 10;
-        list(aux) = (el *) realloc(list(aux), allocd(aux) * sizeof(el));
-        max(aux) = max_pos(max(aux), pos(e));
-        min(aux) = min_pos(min(aux), pos(e));
-        list(aux)[nelem(aux)++] = e;
-      }
-      else {
-        /* space limit exceeded */
-        return 1;
-      }
+  if (val(e) != zero(*m)) {
+    if (nelem(*m) < MAX_N_ELEM) {
+      max(*m) = max_pos(max(*m), pos(e));
+      min(*m) = min_pos(min(*m), pos(e));
+      list(*m)[nelem(*m)++] = e;
+    }
+    else {
+      return 1;
     }
   }
 
-  *m = aux;
   return 0;
 }
 
@@ -374,19 +239,17 @@ int add_el(sparse *m, el e)
 static void remove_at(sparse *m, unsigned index)
 {
   int i;
-  sparse aux = *m;
 
   /* if the position is greater than the number of elements, return
    * alternatively, if nelem(m) == 0, then the expression is true,
    * which deals with the empty matrix case */
-  if (index >= nelem(aux)) return;
+  if (index >= nelem(*m)) return;
 
-  nelem(aux)--;
-  for (i = index; i < nelem(aux); i++) {
-    list(aux)[i] = list(aux)[i + 1];
+  nelem(*m)--;
+  for (i = index; i < nelem(*m); i++) {
+    list(*m)[i] = list(*m)[i + 1];
   }
 
-  *m = aux;
   update_max_min(m);
 }
 
@@ -399,46 +262,40 @@ static void remove_at(sparse *m, unsigned index)
 static void update_max_min(sparse *m)
 {
   int i;
-  sparse aux = *m;
   pos nmax, nmin;
 
-  if (empty_sparse(aux)) {
-    max(aux) = min(aux) = init_pos(0, 0);
-    *m = aux;
+  if (empty_sparse(*m)) {
+    max(*m) = min(*m) = init_pos(0, 0);
     return;
   }
 
-  nmax = nmin = pos(list(aux)[0]);
-  for (i = 0; i < nelem(aux); i++) {
-    nmax = max_pos(nmax, pos(list(aux)[i]));
-    nmin = min_pos(nmin, pos(list(aux)[i]));
+  nmax = nmin = pos(list(*m)[0]);
+  for (i = 0; i < nelem(*m); i++) {
+    nmax = max_pos(nmax, pos(list(*m)[i]));
+    nmin = min_pos(nmin, pos(list(*m)[i]));
   }
   
-  max(aux) = nmax;
-  min(aux) = nmin;
-
-  *m = aux;
+  max(*m) = nmax;
+  min(*m) = nmin;
 }
 
 
 /*
  * removes elements from several positions in the
- * ordered list index[]
+ * ordered list indices[]
  */
-static void remove_mult(sparse *m, unsigned index[], unsigned len)
+static void remove_mult(sparse *m, unsigned indices[], unsigned len)
 {
   if (len == 0) return;
 
-  sparse aux = *m;
-  el *new_list = malloc(allocd(aux) * sizeof(el));
   pos nmin = init_pos(UINT_MAX, UINT_MAX), nmax = init_pos(0, 0);
   int i, j, k;
 
-  for (i = j = k = 0; i < nelem(aux) && k < len; i++) {
-    if (i != index[k]) {
-      new_list[j] = list(aux)[i];
-      nmax = max_pos(nmax, pos(new_list[j]));
-      nmin = min_pos(nmin, pos(new_list[j]));
+  for (i = j = k = 0; i < nelem(*m) && k < len; i++) {
+    if (i != indices[k]) {
+      list(*m)[j] = list(*m)[i];
+      nmax = max_pos(nmax, pos(list(*m)[j]));
+      nmin = min_pos(nmin, pos(list(*m)[j]));
       j++;
     }
     else {
@@ -446,12 +303,9 @@ static void remove_mult(sparse *m, unsigned index[], unsigned len)
     }
   }
 
-  list(aux) = new_list;
-  max(aux) = nmax;
-  min(aux) = nmin;
-  nelem(aux) = j;
-
-  *m = aux;
+  max(*m) = nmax;
+  min(*m) = nmin;
+  nelem(*m) = j;
 }
 
 
@@ -466,9 +320,12 @@ void print_sparse(sparse m)
     return;
   }
 
+  char str[BUFFER_OUT_EL];
+
   int i;
   for (i = 0; i < nelem(m); i++) {
-    printf("%s\n", out_el(list(m)[i]));
+    out_el(list(m)[i], str);
+    printf("%s\n", str); 
   }
 }
 
@@ -483,7 +340,6 @@ void print_charact_sparse(sparse m)
     return;
   }
 
-  /* ATTENTION: extra space! hackish solution: placeholder for char */
   printf("[%u %u] [%u %u] %u / %u = %lf%%\n",
       row(min(m)), col(min(m)), row(max(m)), col(max(m)),
       nelem(m), size_sparse(m), 100 * density_sparse(m));
@@ -496,21 +352,17 @@ void print_charact_sparse(sparse m)
  */
 void change_zero(sparse *m, double new_zero)
 {
-  sparse aux = *m;
-  unsigned *indices;
+  unsigned indices[MAX_N_ELEM];
   unsigned i, j;
 
-  if (new_zero == zero(aux) || empty_sparse(aux)) return;
+  if (new_zero == zero(*m) || empty_sparse(*m)) return;
 
-  zero(aux) = new_zero;
-  indices = malloc(nelem(aux) * sizeof(int));
-  for (i = j = 0; i < nelem(aux); i++) {
-    if (val(list(aux)[i]) == zero(aux)) {
+  zero(*m) = new_zero;
+  for (i = j = 0; i < nelem(*m); i++) {
+    if (val(list(*m)[i]) == zero(*m)) {
       indices[j++] = i;
     }
   }
 
-  *m = aux;
   remove_mult(m, indices, j);
-  free(indices);
 }
