@@ -46,13 +46,14 @@ bool less2(item a, item b)
  * M: maximum value of the key of the items of the list
  * key: returns the key to be considered
  */
-void counting_sort(item list, int l, int r, int m, int M, unsigned (*key)(item))
+void counting_sort(item list[], int l, int r, int m, int M, unsigned (*key)(item))
 {
   /* size_cnt is the number of possible keys 
    * size_aux is the number of elements in list between l and r*/
   int i;
-  int size_cnt = M - r + 1, size_aux;
-  int cnt[size_aux], aux[size_aux];
+  int size_cnt = M - m + 1, size_aux = r - l + 1;
+  int cnt[size_aux];
+  item aux[size_aux];
   
   for (i = 0; i < size_cnt; cnt[i++] = 0);
 
@@ -63,17 +64,17 @@ void counting_sort(item list, int l, int r, int m, int M, unsigned (*key)(item))
 
   /* accumulate */
   for (i = 1; i < size_cnt; i++) {
-    cnt[j] += cnt[j - 1];
+    cnt[i] += cnt[i - 1];
   }
 
   /* construct auxiliar */
-  for (i = l, i <= r; i++) {
-    b[cnt[list[i]]++] = list[i];
+  for (i = l; i <= r; i++) {
+    aux[cnt[(*key)(list[i])]++] = list[i];
   }
 
   /* copy to list */
   for (i = l; i <= r; i++) {
-    a[i] = b[i - l];
+    list[i] = aux[i - l];
   }
   
 }

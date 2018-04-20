@@ -16,6 +16,7 @@
 
 #include "pos.h"
 #include <stdbool.h>
+#include <stdlib.h>
 
 // TODO: search for a more precise value, in conformity with specs
 /* buffer for output string */
@@ -39,11 +40,14 @@ typedef struct {
 /* constructor */
 el init_el(double val, pos p);
 
-/* output string: exits with error if the buffer is exceeded */
-char *out_el(el e);
+/* creates output string to print:
+ * exits with error if the buffer is exceeded  
+ * (out must be initialized with the same size)
+ */
+void out_el(el e, char *out);
 
-/* valid string representation of an element */
-bool valid_el(char *str);
-
-/* input from string */
-el str_to_el(char *input);
+/* creates output string to save to file:
+ * exits with error if the buffer is exceeded  
+ * (out must be initialized with the same size)
+ */
+void save_el(el e, char *out);

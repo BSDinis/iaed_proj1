@@ -35,5 +35,5 @@ bool less1(item a, item b);
 bool less2(item a, item b);
 
 /* implements the counting sort using a certain key function */
-void counting_sort(item list, int l, int r, int m, int M, bool (*key)(item));
+void counting_sort(item list[], int l, int r, int m, int M, unsigned (*key)(item));
 

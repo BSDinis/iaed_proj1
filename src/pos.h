@@ -23,7 +23,8 @@
 #pragma once
 
 #include <stdbool.h>
-#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 // TODO: search for a more precise value, in conformity with specs
 /* buffer for output string */
@@ -43,14 +44,11 @@ typedef struct {
 /* constructor */
 pos init_pos(unsigned int i, unsigned int j);
 
-/* output string: exits with error if the output string exceeds buffer */
-char *out_pos(pos p);
-
-/* valid string representation of an element */
-bool valid_pos(char *str);
-
-/* input from string */
-pos str_to_pos(char *input);
+/* output string:
+ * exits with error if the buffer is exceeded  
+ * (out must be initialized with the same size)
+ */
+void out_pos(pos p, char *out);
 
 /* maximum and minimum */
 pos max_pos(pos a, pos b);

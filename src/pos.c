@@ -9,14 +9,12 @@
  */
 
 #include "pos.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 #define max(a, b) ((a > b) ? a : b)
 #define min(a, b) ((a < b) ? a : b)
 
 /* constructor */
-pos init_pos(unsigned int i, unsigned int j)
+pos init_pos(unsigned i, unsigned j)
 {
   pos p;
   p.i = i;
@@ -25,64 +23,15 @@ pos init_pos(unsigned int i, unsigned int j)
 }
 
 /* output string */
-char *out_pos(pos p)
+void out_pos(pos p, char *out)
 {
-  char *str = (char *) malloc(BUFFER_OUT_POS * sizeof(char));
-  if (snprintf(str, BUFFER_OUT_POS, "[%u;%u]", row(p), col(p)) >= BUFFER_OUT_POS) {
+  if (snprintf(out, BUFFER_OUT_POS, "[%u;%u]", row(p), col(p)) >= BUFFER_OUT_POS) {
     perror("pos.c: out_pos: buffer overflow trying to output pos.\n");
     printf("pos.c: out_pos: buffer overflow trying to output pos.\n");
     exit(1);
   }
-  return str;
 }
 
-
-/* 
- * valid string representation of an element 
- *
- * checks if a string matches a representation of an position:
- * [%u;%u]
- */
-bool valid_pos(char *str)
-{
-  int i = 0;
-  int cnt = 0;
-  if (str[i++] != '[') return false;
-
-  while (str[i] != ';' && str[i] != '\0') {
-    if (!isdigit(str[i++])) return false; 
-    cnt++;
-  }
-  if (str[i] == '\0' || str[i] != ';' || cnt == 0) return false;
-  i++;
-
-  cnt = 0;
-  while (str[i] != ']' && str[i] != '\0') {
-    if (!isdigit(str[i++])) return false;
-    cnt++;
-  }
-  if (str[i] == '\0' || str[i] != ']' || cnt == 0) return false;
-
-  i++;
-  return (str[i] == '\0');
-}
-
-/* 
- * input from string 
- * given a string of the format: [<row>;<col>]
- * returns the (<row>,<col>) position
- *
- * does not accomodate for invalid input strings, prior checking 
- * must be done
- */
-pos str_to_pos(char *input)
-{
-  pos p;
-  sscanf(input, "[%u;%u]", &row(p), &col(p));
-  return p;
-}
-
-/* maximum and minimum */
 
 /* 
  * returns the max of the two positions
