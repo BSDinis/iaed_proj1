@@ -16,6 +16,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdarg.h>
+#include <limits.h>
 
 #include "el.h"
 #include "pos.h"
@@ -54,11 +55,13 @@ typedef struct {
 #define allocd(a) (a.allocd)
 
 /* test */
-#define empty_matrix(a) (nelem(a) == 0)
+#define empty_sparse(a) (nelem(a) == 0)
+
+/* computes the size of the complete matrix */
+#define size_sparse(a) ((unsigned) (col(max(m)) - col(min(m)) + 1) * (row(max(m)) - row(min(m)) + 1))
 
 /* computes the density of a matrix */
-double density(sparse m);
-
+#define density_sparse(a) (((double) nelem(m)) / size_sparse(m))
 
 /* constructor */
 
@@ -84,3 +87,18 @@ void free_sparse(sparse m);
 /* exporting */
 /* converts a matrix into a file */
 void sparse_to_file(sparse m, char *filename);
+
+
+/* operations */
+
+/* adds a new element to the matrix */
+int add_el(sparse *m, el e);
+
+/* prints all the elements on a sparse matrix */
+void print_sparse(sparse m);
+
+/* prints the carachteristics of a sparse matrix */
+void print_charact_sparse(sparse m);
+
+/* changes the value of zero */
+void change_zero(sparse *m, double new_zero);
