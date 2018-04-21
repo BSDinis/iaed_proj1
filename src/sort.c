@@ -11,31 +11,35 @@
 
 #include "sort.h"
 
-/* gets the first key: row of the position */
+/* gets the first key: row of the position 
 unsigned key1(item a)
 {
   return row(pos(a));
 }
+*/
 
-/* gets the second key: col of the position */
+/* gets the second key: col of the position 
 unsigned key2(item a)
 {
   return col(pos(a));
 }
+*/
 
-/* compares using the first key as the most significant one */
+/* compares using the first key as the most significant one 
 bool less1(item a, item b)
 {
   return ((key1(a) < key1(b)) ||
       ((key1(a) == key1(b)) && key2(a) < key2(b)));
 }
+*/
 
-/* compares using the second key as the most significant one */
+/* compares using the second key as the most significant one
 bool less2(item a, item b)
 {
   return ((key2(a) < key2(b)) ||
       ((key2(a) == key2(b)) && key1(a) < key1(b)));
 }
+*/
 
 /* 
  * implements the counting sort using a certain compare function
@@ -69,12 +73,11 @@ void counting_sort(item list[], int l, int r, int m, int M, unsigned (*key)(item
 
   /* construct auxiliar */
   for (i = l; i <= r; i++) {
-    aux[cnt[(*key)(list[i])]++] = list[i];
+    aux[cnt[(*key)(list[i]) - m]++] = list[i];
   }
 
   /* copy to list */
   for (i = l; i <= r; i++) {
     list[i] = aux[i - l];
   }
-  
 }
