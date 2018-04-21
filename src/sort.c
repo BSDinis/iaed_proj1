@@ -50,7 +50,7 @@ bool less2(item a, item b)
  * M: maximum value of the key of the items of the list
  * key: returns the key to be considered
  */
-void counting_sort(item list[], int l, int r, int m, int M, unsigned (*key)(item))
+void counting_sort(item list[], int l, int r, unsigned m, unsigned M, unsigned (*key)(item))
 {
   /* size_cnt is the number of possible keys 
    * size_aux is the number of elements in list between l and r*/
@@ -81,3 +81,21 @@ void counting_sort(item list[], int l, int r, int m, int M, unsigned (*key)(item
     list[i] = aux[i - l];
   }
 }
+/* implements radix sort LSD using a n key functions, 
+ * given in a list of function pointers, with ascending significant
+ *
+ * ex: order a list of pairs of integers (x, y), with y being the 
+ * least significant
+ *
+ * radix_sort(list, l, r, m_list, M_list, 
+ * {<function that selects y>, <function that selects, x>, 2)
+ */
+void radix_sort(item list[], int l, int r, unsigned m_list[], 
+    unsigned M_list[], unsigned (*key_arr[])(item), int arglen)
+{
+  int i;
+  for (i = 0; i < arglen; i++) {
+    counting_sort(list, l, r, m_list[i], M_list[i], key_arr[i]);
+  }
+}
+

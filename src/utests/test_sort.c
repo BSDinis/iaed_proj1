@@ -24,28 +24,34 @@
 #define MAX_SIZE 10000
 
 int normalize(int n, int low, int high);
-unsigned key_int(item i);
+unsigned key_1(item a);
+unsigned key_2(item a);
+
 
 int main()
 {
   int size;
-  int i;
-  int m = 0, M = 9;
+  int k;
+  unsigned m[] = {4, 4};
+  unsigned M[] = {16, 16};
+  unsigned (*key_arr[])(item) = {key_1, key_2};
+
   fscanf(stdin, "%d", &size);
   size = (size > MAX_SIZE) ? MAX_SIZE : size;
 
-  int vec[size];
-  for (i = 0; i < size; i++) {
-    fscanf(stdin, "%d", vec + i);
-    vec[i] = normalize(vec[i], m, M);
-    printf("%d:", vec[i]);
+  item vec[size];
+  for (k = 0; k < size; k++) {
+    fscanf(stdin, "%d %d", &(vec[k].x), &(vec[k].y));
+    vec[k].x = normalize(vec[k].x, m[1], M[1]);
+    vec[k].y = normalize(vec[k].y, m[0], M[0]);
+    printf("(%d,%d):", vec[k].x, vec[k].y);
   }               
   printf("\n\n");
 
-  counting_sort(vec, 0, size - 1, m, M, (*key_int));
+  radix_sort(vec, 0, size - 1, m, M, key_arr, 2);
 
 
-  for (i = 0; i < size; printf("%d\n", vec[i++]));
+  for (k = 0; k < size; printf("(%d,%d)\n", vec[k].x, vec[k].y), k++);
 
 
   return 0;
@@ -61,8 +67,13 @@ int normalize(int n, int low, int high)
   return n;
 }
 
-unsigned key_int(item i)
+unsigned key_1(item a)
 {
-  return i;           
+  return a.x;           
+}
+
+unsigned key_2(item a)
+{
+  return a.y;           
 }
 
