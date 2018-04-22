@@ -12,7 +12,8 @@
  *
  */
 
-#pragma once
+#ifndef EL_H
+#define EL_H
 
 #include "pos.h"
 #include <stdbool.h>
@@ -54,3 +55,6 @@ void save_el(el e, char *out);
 
 /* get element from string in the forma "u u double"*/
 el str_to_el(char *input);
+
+
+#endif /* !EL_H */

@@ -340,7 +340,7 @@ void print_charact_sparse(sparse m)
     return;
   }
 
-  printf("[%u %u] [%u %u] %u / %u = %lf%%\n",
+  printf("[%u %u] [%u %u] %u / %u = %.3lf%%\n",
       row(min(m)), col(min(m)), row(max(m)), col(max(m)),
       nelem(m), size_sparse(m), 100 * density_sparse(m));
 }
@@ -365,4 +365,42 @@ void change_zero(sparse *m, double new_zero)
   }
 
   remove_mult(m, indices, j);
+}
+
+
+/*
+ * sorts a sparse matrix, with regard to either the columns or the rows,
+ * depending on a flag
+ */
+void sort_sparse(sparse *m, bool col)
+{
+  /* creates instances for arguments of the sorting function */
+  /* magic number 2: dimension of the tensor (matrix -> rank 2 tensor)
+   * is not a constant as it would be more confusing and would not have
+   * any purpose, since we need to assign values to the lists in each
+   * position */
+  unsigned m_list[2], M_list[2];
+  unsigned (*key_arr[2])(item);
+
+  /* variables a and b avoid code repetition */
+  int a, b;
+  if (!col) {
+    /* order by rows */
+    a = 0;
+    b = 1;
+  }
+  else {
+    /* order by columns */
+    a = 1;
+    b = 0;
+  }
+
+  m_list[a] = col(min(*m));
+  M_list[a] = col(max(*m));
+  key_arr[a] = key_col;
+  m_list[b] = row(min(*m));
+  M_list[b] = row(max(*m));
+  key_arr[b] = key_row;
+
+  radix_sort(list(*m), 0, nelem(*m) - 1, m_list, M_list, key_arr, 2);
 }

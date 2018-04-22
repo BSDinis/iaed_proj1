@@ -20,7 +20,8 @@
  * several changes in the program
  */
 
-#pragma once
+#ifndef POS_H
+#define POS_H
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -53,3 +54,5 @@ void out_pos(pos p, char *out);
 /* maximum and minimum */
 pos max_pos(pos a, pos b);
 pos min_pos(pos a, pos b);
+
+#endif /* POS_H */

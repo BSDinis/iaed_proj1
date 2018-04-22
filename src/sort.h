@@ -11,7 +11,8 @@
  *
  */
 
-#pragma once
+#ifndef SORT_H
+#define SORT_H
 
 #include <stdlib.h>
 #include <stdbool.h>
@@ -32,9 +33,9 @@ unsigned key_col(item a);
 void counting_sort(item list[], int l, int r, unsigned m, unsigned M, unsigned (*key)(item));
 
 /* implements radix sort LSD using a n key functions, 
- * given in a list of function pointers, with ascending significant
+ * given in a list of function pointers, with ascending significance
  *
- * ex: order a list of pairs of integers (x, y), with y being the 
+ * eg: order a list of pairs of integers (x, y), with y being the 
  * least significant
  *
  * radix_sort(list, l, r, m_list, M_list, 
@@ -43,4 +44,4 @@ void counting_sort(item list[], int l, int r, unsigned m, unsigned M, unsigned (
 void radix_sort(item list[], int l, int r, unsigned m_list[],
     unsigned M_list[], unsigned (*key_arr[])(item), int n);
 
-
+#endif /* !SORT_H */

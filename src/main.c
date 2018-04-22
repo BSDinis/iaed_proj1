@@ -45,7 +45,7 @@ void print_row(sparse m, char *cmd);
 void print_col(sparse m, char *cmd);
 
 /* sorts a sparse matrix, with regard to either the cols or the rows */
-void sort_sparse(sparse *m, char *cmd);
+void sort(sparse *m, char *cmd);
 
 /* compress a matrix */
 void compress(sparse m, char *cmd);
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
         break;
 
       case 'o':
-        sort_sparse(&m, cmd);
+        sort(&m, cmd);
         break;
 
       case 'z':
@@ -128,7 +128,9 @@ int main(int argc, char *argv[])
 bool get_command(char *cmd)
 {
   if (fgets(cmd, CMD_BUFFER, stdin) != NULL) {
-    return (strcmp(cmd, "q") == 0);
+    /* remove newline character */
+    cmd[strlen(cmd) - 1] = '\0';  
+    return (strcmp(cmd, "q") != 0);
   }
   return false;
 }
@@ -217,12 +219,19 @@ void print_col(sparse m, char *cmd)
   }
 }
 /* sorts a sparse matrix, with regard to either the cols or the rows */
-void sort_sparse(sparse *m, char *cmd)
+void sort(sparse *m, char *cmd)
 {
-  //TODO
-  return;
+  if (strcmp(cmd, "o") == 0) {
+    /* sort by rows */
+    sort_sparse(m, false);
+  }
+  else if (strcmp(cmd, "o column") == 0) {
+    /* sort by columns */
+    sort_sparse(m, true);
+  }
+  /* quietly exits when finds a wrong command argument */
 }
-
+  
 /* compress a matrix */
 void compress(sparse m, char *cmd)
 {

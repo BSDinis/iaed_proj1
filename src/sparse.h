@@ -9,7 +9,8 @@
  * defines several operations on that datatype
  */
 
-#pragma once
+#ifndef SPARSE_H
+#define SPARSE_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,6 +21,7 @@
 
 #include "el.h"
 #include "pos.h"
+#include "sort.h"
 
 
 #define MAX_N_ELEM 10000
@@ -98,3 +100,9 @@ void print_charact_sparse(sparse m);
 
 /* changes the value of zero */
 void change_zero(sparse *m, double new_zero);
+
+/* sorts a sparse matrix, with regard to either the columns or the rows,
+ * depending on a flag */
+void sort_sparse(sparse *m, bool col);
+
+#endif /* !SPARSE_H */
