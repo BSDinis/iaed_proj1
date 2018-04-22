@@ -17,6 +17,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdarg.h>
+#include <unistd.h>
 #include <limits.h>
 
 #include "el.h"

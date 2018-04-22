@@ -54,7 +54,7 @@ void compress(sparse m, char *cmd);
 void ch_zero(sparse *m, char *cmd);
 
 /* saves a matrix to a file */
-void write(sparse m, char *cmd, char *filename);
+void write_sparse(sparse m, char *cmd, char *filename);
 
 
 int main(int argc, char *argv[])
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
         break;
 
       case 'w':
-        write(m, cmd, filename);
+        write_sparse(m, cmd, filename);
         break;
 
       default:
@@ -254,7 +254,7 @@ void ch_zero(sparse *m, char *cmd)
 }
 
 /* saves a matrix to a file */
-void write(sparse m, char *cmd, char *filename)
+void write_sparse(sparse m, char *cmd, char *filename)
 {
   if (strcmp(cmd, "w") != 0) {
     strcpy(filename, cmd + 2);

@@ -97,15 +97,24 @@ static sparse init_new_sparse()
 static sparse file_to_sparse(char *filename)
 {
   FILE *fp;
+  int i = 0;
   sparse m = init_new_sparse();
   char input[BUFFER_OUT_EL];
 
   fp = fopen(filename, "r");
 
+  /* check if file exists */
+  if (fp == NULL) {
+    fclose(fp);
+    return m;
+  }
+
   /* get the input until
    * the maxsize of the sparse is reached 
    * the fgets unsuccessfully returns */
-  while (fgets(input, BUFFER_OUT_EL, fp) != NULL && add_el(&m, str_to_el(input)));
+  while (fgets(input, BUFFER_OUT_EL, fp) != NULL && add_el(&m, str_to_el(input)) == 0) {
+    i++;
+  }
 
   fclose(fp);
   return m;
