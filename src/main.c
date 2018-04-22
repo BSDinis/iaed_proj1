@@ -173,7 +173,7 @@ void print_row(sparse m, char *cmd)
   }
   j--;
 
-  counting_sort(list, 0, j, row(min(m)), row(max(m)), &key_col);
+  counting_sort(list, 0, j, col(min(m)), col(max(m)), &key_col);
 
   for (i = col(min(m)), k = 0; i <= col(max(m)); i++) {
     if (k <= j && col(pos(list[k])) == i) {
@@ -211,7 +211,7 @@ void print_col(sparse m, char *cmd)
   }
   j--;
 
-  counting_sort(list, 0, j, col(min(m)), col(max(m)), &key_row);
+  counting_sort(list, 0, j, row(min(m)), row(max(m)), &key_row);
 
   for (i = row(min(m)), k = 0; i <= row(max(m)); i++) {
     if (k <= j && row(pos(list[k])) == i) {

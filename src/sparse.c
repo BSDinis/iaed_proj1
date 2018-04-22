@@ -112,7 +112,7 @@ static sparse file_to_sparse(char *filename)
   /* get the input until
    * the maxsize of the sparse is reached 
    * the fgets unsuccessfully returns */
-  while (fgets(input, BUFFER_OUT_EL, fp) != NULL && add_el(&m, str_to_el(input)) == 0) {
+  while (fgets(input, BUFFER_OUT_EL, fp) != NULL && add_el(&m, str_to_el(input))) {
     i++;
   }
 
@@ -154,10 +154,10 @@ void sparse_to_file(sparse m, char *filename)
  * may have to reallocate memory for the list
  * 
  * Return codes:
- *   0: Successful operation
- *   1: Space limit reached
+ *   true: Successful operation
+ *   false: Space limit reached
  */
-int add_el(sparse *m, el e)
+bool add_el(sparse *m, el e)
 {
   int i;
 
@@ -167,7 +167,7 @@ int add_el(sparse *m, el e)
   if (empty_sparse(*m) && val(e) != zero(*m)) {
     min(*m) = max(*m) = pos(e);
     list(*m)[nelem(*m)++] = e;
-    return 0;
+    return true;
   }
 
   /* check if there is an element with the same position in the matrix
@@ -176,19 +176,19 @@ int add_el(sparse *m, el e)
    * important property: there aren't repeated positions
    */
   /* quick check */
-  if (row(pos(e)) < row(min(*m)) && row(pos(e)) > row(max(*m)) &&
-        col(pos(e)) < row(min(*m)) && col(pos(e)) > col(max(*m))) {
+  if (row(pos(e)) >= row(min(*m)) && row(pos(e)) <= row(max(*m)) &&
+        col(pos(e)) >= col(min(*m)) && col(pos(e)) <= col(max(*m))) {
 
     for (i = 0; i < nelem(*m) && !eq_pos(pos(e), pos(list(*m)[i])); i++);
 
     if (i != nelem(*m)) {
       if(val(e) == zero(*m)) {
         remove_at(m, i);
-        return 0;
+        return true;
       }
       else {
         val(list(*m)[i]) = val(e);
-        return 0;
+        return true;
       }
     }
   }
@@ -200,11 +200,11 @@ int add_el(sparse *m, el e)
       list(*m)[nelem(*m)++] = e;
     }
     else {
-      return 1;
+      return false;
     }
   }
 
-  return 0;
+  return true;
 }
 
 
@@ -268,8 +268,8 @@ static void remove_mult(sparse *m, unsigned indices[], unsigned len)
   pos nmin = init_pos(UINT_MAX, UINT_MAX), nmax = init_pos(0, 0);
   int i, j, k;
 
-  for (i = j = k = 0; i < nelem(*m) && k < len; i++) {
-    if (i != indices[k]) {
+  for (i = j = k = 0; i < nelem(*m); i++) {
+    if (k >= len || i != indices[k]) {
       list(*m)[j] = list(*m)[i];
       nmax = max_pos(nmax, pos(list(*m)[j]));
       nmin = min_pos(nmin, pos(list(*m)[j]));

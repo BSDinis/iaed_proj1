@@ -88,7 +88,7 @@ void sparse_to_file(sparse m, char *filename);
 /* operations */
 
 /* adds a new element to the matrix */
-int add_el(sparse *m, el e);
+bool add_el(sparse *m, el e);
 
 /* prints all the elements on a sparse matrix */
 void print_sparse(sparse m);
