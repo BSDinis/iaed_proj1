@@ -18,25 +18,15 @@
 #include "el.h"
 #include "pos.h"
 
-typedef struct {
-  int x, y;
-} point;
-
-typedef point item;
+typedef el item;
 
 #define swap(a, b) {item tmp = a; a = b; b = tmp;}
 
 /* gets the first key: row of the position */
-//unsigned key1(item a); 
+unsigned key_row(item a); 
 
 /* gets the second key: col of the position */
-//unsigned key2(item a); 
-
-/* compares using the first key as the most significant one */
-//bool less1(item a, item b);
-
-/* compares using the second key as the most significant one */
-//bool less2(item a, item b);
+unsigned key_col(item a); 
 
 /* implements counting sort using a certain key function */
 void counting_sort(item list[], int l, int r, unsigned m, unsigned M, unsigned (*key)(item));

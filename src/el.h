@@ -52,5 +52,5 @@ void out_el(el e, char *out);
  */
 void save_el(el e, char *out);
 
-/* get element from string */
+/* get element from string in the forma "u u double"*/
 el str_to_el(char *input);

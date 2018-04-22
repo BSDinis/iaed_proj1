@@ -56,7 +56,9 @@ typedef struct {
 #define empty_sparse(a) (nelem(a) == 0)
 
 /* computes the size of the complete matrix */
-#define size_sparse(a) ((unsigned) (col(max(m)) - col(min(m)) + 1) * (row(max(m)) - row(min(m)) + 1))
+#define width_sparse(a) ((unsigned) (row(max((a))) - row(min((a))) + 1))
+#define height_sparse(a) ((unsigned) (col(max((a))) - col(min((a))) + 1))
+#define size_sparse(a) ((unsigned) width_sparse(a) * height_sparse(a))
 
 /* computes the density of a matrix */
 #define density_sparse(a) (((double) nelem(m)) / size_sparse(m))
