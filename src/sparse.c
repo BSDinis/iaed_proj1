@@ -52,7 +52,7 @@ sparse init_sparse(int n, ...)
   va_list valist;
   va_start(valist, n);
 
-  /* if there is one argument, a valid file, load the matrix */
+  /* if there is one argument, a filename, load the matrix */
   if (n == 1) {
     char *filename = va_arg(valist, char *);
     va_end(valist);
@@ -86,24 +86,8 @@ static sparse init_new_sparse()
 }
 
 
-/* checks if the filename has a *.sm extension */
-bool valid_sm_file(char *filename)
-{
-  int i = strlen(filename);
-
-  /* minimal filename: a.sm -> 4 chars */
-  if (i < 4) return false;
-
-  /* position i on the dot */
-  i -= 3;
-  
-  /* the last three characters must be ".sm" */
-  return strcmp(filename + i, ".sm");
-}
-
 /* 
  * converts a file to a sparse matrix
- * if the filename is not valid, return an empty matrix
  *
  * return codes:
  *   0: sucessful coversion
@@ -115,10 +99,6 @@ static sparse file_to_sparse(char *filename)
   FILE *fp;
   sparse m = init_new_sparse();
   char input[BUFFER_OUT_EL];
-
-  if (!valid_sm_file(filename)) {
-    return m;
-  }
 
   fp = fopen(filename, "r");
 
@@ -136,9 +116,6 @@ static sparse file_to_sparse(char *filename)
 /*
  * converts a matrix into a file
  *
- * checks if the filename is valid.
- * if it isn't make it so, by adding the *.sm extension
- *
  * saves the matrix to file as it will be read:
  * the first three lines are the allocd, nelem and zero values
  * the proceding nelem lines are the elements
@@ -146,19 +123,9 @@ static sparse file_to_sparse(char *filename)
  */
 void sparse_to_file(sparse m, char *filename)
 {                                                                   
-  FILE *fp;
   int i;                                                            
-  int len = strlen(filename);
+  FILE *fp;
   char str[BUFFER_OUT_EL];
-
-  /* if filename isn't valid, check if there is space to add the 
-   * extension. if there isn't, overwrite the last characters */
-  if (!valid_sm_file(filename)) {
-    if (len >= MAX_FILENAME - 3) {
-      filename[MAX_FILENAME - 3] = '\0';
-    }
-    filename = strcat(filename, ".sm");
-  }
 
   fp = fopen(filename, "w");
   
@@ -166,6 +133,7 @@ void sparse_to_file(sparse m, char *filename)
     save_el(list(m)[i], str);
     fprintf(fp, "%s\n", str);
   }
+  fclose(fp);
 }
 
 

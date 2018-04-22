@@ -77,9 +77,6 @@ typedef struct {
  */
 sparse init_sparse(int n, ...);
 
-/* checks if the filename has a *.sm extension */
-bool valid_sm_file(char *filename);
-
 /* destructor */
 void free_sparse(sparse m);
 

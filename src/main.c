@@ -54,19 +54,24 @@ void compress(sparse m, char *cmd);
 void ch_zero(sparse *m, char *cmd);
 
 /* saves a matrix to a file */
-void write(sparse m, char *cmd);
+void write(sparse m, char *cmd, char *filename);
 
 
 int main(int argc, char *argv[])
 {
   sparse m;
   char cmd[CMD_BUFFER + 1];
+  char filename[MAX_FILENAME + 1];
   char command;
 
-  if (argc == 1) {
-    m = init_sparse(1, argv[0]);
+  /* ensure the filename starts as an empty string */
+  filename[0] = '\0';
+
+  if (argc == 2) {
+    strcpy(filename, argv[1]);
+    m = init_sparse(1, filename);
   }
-  else if (argc == 0) {
+  else if (argc == 1) {
     m = init_sparse(0);
   }
   else {
@@ -109,7 +114,7 @@ int main(int argc, char *argv[])
         break;
 
       case 'w':
-        write(m, cmd);
+        write(m, cmd, filename);
         break;
 
       default:
@@ -168,7 +173,7 @@ void print_row(sparse m, char *cmd)
   }
   j--;
 
-  counting_sort(list, 0, j, row(min(m)), row(max(m)), key_row);
+  counting_sort(list, 0, j, row(min(m)), row(max(m)), &key_col);
 
   for (i = col(min(m)), k = 0; i <= col(max(m)); i++) {
     if (k <= j && col(pos(list[k])) == i) {
@@ -206,7 +211,7 @@ void print_col(sparse m, char *cmd)
   }
   j--;
 
-  counting_sort(list, 0, j, col(min(m)), col(max(m)), key_col);
+  counting_sort(list, 0, j, col(min(m)), col(max(m)), &key_row);
 
   for (i = row(min(m)), k = 0; i <= row(max(m)); i++) {
     if (k <= j && row(pos(list[k])) == i) {
@@ -249,7 +254,13 @@ void ch_zero(sparse *m, char *cmd)
 }
 
 /* saves a matrix to a file */
-void write(sparse m, char *cmd)
+void write(sparse m, char *cmd, char *filename)
 {
-  sparse_to_file(m, cmd + 2);
+  if (strcmp(cmd, "w") != 0) {
+    strcpy(filename, cmd + 2);
+  }
+
+  if (strlen(filename) > 0) {
+    sparse_to_file(m, filename);
+  }
 }
