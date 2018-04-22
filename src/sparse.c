@@ -13,11 +13,8 @@
  *   el
  */
 
-/* Note to self: there may be some issues with your mem management
- * In particular your liberal usage of assignments and not cleaning up 
- * after yourself when using auxiliar sparse matrices */  
-
 #include "sparse.h"
+
 
 /*-------------------------------*/
 /* prototypes */

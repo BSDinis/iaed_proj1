@@ -24,6 +24,9 @@
 #include "pos.h"
 #include "sort.h"
 
+/* define min and max functions as macros */
+#define max_int(a, b) ((a > b) ? a : b)
+#define min_int(a, b) ((a < b) ? a : b)
 
 #define MAX_N_ELEM 10000
 #define MAX_N_ELEM_BUFF 5 // 10000 has 5 chars

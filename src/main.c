@@ -24,10 +24,6 @@
 #include "compress.h"
 #include "sort.h"
 
-/* define min and max functions as macros */
-#define max_int(a, b) ((a > b) ? a : b)
-#define min_int(a, b) ((a < b) ? a : b)
-
 /* size of the buffer string to store the command */
 #define CMD_BUFFER 100
 
