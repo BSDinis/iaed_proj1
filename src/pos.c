@@ -25,11 +25,7 @@ pos init_pos(unsigned i, unsigned j)
 /* output string */
 void out_pos(pos p, char *out)
 {
-  if (snprintf(out, BUFFER_OUT_POS, "[%u;%u]", row(p), col(p)) >= BUFFER_OUT_POS) {
-    perror("pos.c: out_pos: buffer overflow trying to output pos.\n");
-    printf("pos.c: out_pos: buffer overflow trying to output pos.\n");
-    exit(1);
-  }
+  sprintf(out, "[%u;%u]", row(p), col(p));
 }
 
 

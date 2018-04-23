@@ -29,10 +29,7 @@
 #define min_int(a, b) ((a < b) ? a : b)
 
 #define MAX_N_ELEM 10000
-#define MAX_N_ELEM_BUFF 5 // 10000 has 5 chars
-#define MAX_FILENAME 81 // extra character for terminator
-#define INIT_SIZE 100
-#define MAX_FLOAT_BUFFER 1000
+#define MAX_FILENAME 80 
 
 /* sparse datatype
  *

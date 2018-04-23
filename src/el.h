@@ -19,9 +19,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-// TODO: search for a more precise value, in conformity with specs
-/* buffer for output string */
-#define BUFFER_OUT_EL (BUFFER_OUT_POS * 2 + 10000)
+/* buffer for output string for element
+ * position + greatest finite double is ~ 1.8 E 308
+ * added 5 chars for delimiters */
+#define BUFFER_OUT_EL (BUFFER_OUT_POS + 309 + 5)
 
 typedef struct {
   double val;

@@ -24,8 +24,10 @@
 #include "compress.h"
 #include "sort.h"
 
-/* size of the buffer string to store the command */
-#define CMD_BUFFER 100
+/* size of the buffer string to store the command 
+ * worst case scenario is to add an element, which needs less than 350 chars
+ * alloc 512 for good measure */
+#define CMD_BUFFER 512
 
 /* gets a string with a command 
  * returns false if the command is quit or the stream reached EOF */
