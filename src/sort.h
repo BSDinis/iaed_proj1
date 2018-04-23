@@ -18,6 +18,7 @@
 #include <stdbool.h>
 #include "el.h"
 #include "pos.h"
+#include "sparse.h"
 
 typedef el item;
 

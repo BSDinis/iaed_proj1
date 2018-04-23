@@ -22,7 +22,7 @@ static unsigned compress(sparse m, double vals[], unsigned rows[], unsigned offs
  *                         rows whose density is d
  *   2) size: has the number of rows whose density is d
  */
-static unsigned list_rows_by_density(sparse m, unsigned list[width_sparse(m)][height_sparse(m)], unsigned size[]);
+static unsigned list_rows_by_density(sparse m, unsigned list[MAX_N_ELEM][100], unsigned size[]);
 
 /* calculates the density of the ith row of a sparse matrix */
 static unsigned row_density(sparse m, unsigned i);
@@ -51,9 +51,9 @@ static bool overlap(double a[], double b[],
 /* compresses a sparse matrix, printing the output */
 void compress_sparse(sparse m)
 {
-  double vals[nelem(m) * 2];
-  unsigned rows[nelem(m) * 2];
-  unsigned offsets[height_sparse(m)];
+  double vals[MAX_N_ELEM * 2];
+  unsigned rows[MAX_N_ELEM * 2];
+  unsigned offsets[MAX_N_ELEM];
   unsigned compressed_len;
   unsigned i;
 
@@ -85,11 +85,12 @@ void compress_sparse(sparse m)
  * returns the length of the compressed vectors (vals and rows)*/
 static unsigned compress(sparse m, double vals[], unsigned rows[], unsigned offsets[])
 {
-  unsigned list[width_sparse(m)][height_sparse(m)];
-  unsigned size[width_sparse(m)];
+  unsigned list[MAX_N_ELEM][100];
+  unsigned size[MAX_N_ELEM];
   unsigned max_dens;
   unsigned compressed_len, max_offset;
   int i, j, row;
+  
 
   compressed_len = 0;
   for (i = 0; i < 2 * nelem(m); i++) {
@@ -120,7 +121,7 @@ static unsigned compress(sparse m, double vals[], unsigned rows[], unsigned offs
  *
  * returns the maximum density;
  */
-static unsigned list_rows_by_density(sparse m, unsigned list[width_sparse(m)][height_sparse(m)], unsigned size[])
+static unsigned list_rows_by_density(sparse m, unsigned list[MAX_N_ELEM][100], unsigned size[])
 {
   unsigned max_dens = 0, dens;
   int i;
@@ -160,7 +161,7 @@ static unsigned row_density(sparse m, unsigned i)
  */
 static unsigned find_slot(sparse m, double vals[], unsigned rows[], unsigned vals_len,  unsigned i)
 {
-  double row[width_sparse(m)];
+  double row[MAX_N_ELEM];
   unsigned j, offset;
   bool empty_row = true;
 

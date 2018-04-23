@@ -35,12 +35,11 @@ unsigned key_col(item a)
  */
 void counting_sort(item list[], int l, int r, unsigned m, unsigned M, unsigned (*key)(item))
 {
-  /* size_cnt is the number of possible keys 
-   * size_aux is the number of elements in list between l and r*/
+  /* size_cnt is the number of possible keys */
   int i;
-  int size_cnt = M - m + 1, size_aux = r - l + 1;
-  int cnt[size_aux];
-  item aux[size_aux];
+  int size_cnt = M - m + 1;
+  int cnt[MAX_N_ELEM];
+  item aux[MAX_N_ELEM];
   
   for (i = 0; i < size_cnt; cnt[i++] = 0);
 

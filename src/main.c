@@ -144,10 +144,11 @@ void add(sparse *m, char *cmd)
 
 
 /* prints an entire row of the matrix */
+/* note to self: refactor :- push to sparse.c */
 void print_row(sparse m, char *cmd)
 {
   unsigned i, j, k, row_i;
-  el list[min_int(width_sparse(m), nelem(m))];
+  el list[MAX_N_ELEM];
   sscanf(cmd + 2, "%u", &row_i);
 
   if (row_i < row(min(m)) || row_i > row(max(m))) {
@@ -170,10 +171,10 @@ void print_row(sparse m, char *cmd)
 
   for (i = col(min(m)), k = 0; i <= col(max(m)); i++) {
     if (k <= j && col(pos(list[k])) == i) {
-      printf(" %.3lf", val(list[k++]));
+      printf(" %.3f", val(list[k++]));
     }
     else {
-      printf(" %.3lf", zero(m));
+      printf(" %.3f", zero(m));
     }
   }
   printf("\n");
@@ -184,7 +185,7 @@ void print_row(sparse m, char *cmd)
 void print_col(sparse m, char *cmd)
 {
   unsigned i, j, k, col_i;
-  el list[min_int(height_sparse(m), nelem(m))];
+  el list[MAX_N_ELEM];
   char str[BUFFER_OUT_EL];
   sscanf(cmd + 2, "%u", &col_i);
 

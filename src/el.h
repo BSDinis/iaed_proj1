@@ -18,10 +18,13 @@
 #include "pos.h"
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 
-// TODO: search for a more precise value, in conformity with specs
-/* buffer for output string */
-#define BUFFER_OUT_EL (BUFFER_OUT_POS * 2 + 10000)
+/* buffer for output string
+ * an element has a position and a float (max 309 digits) +
+ * 5 extra for delimiters
+ */
+#define BUFFER_OUT_EL (BUFFER_OUT_POS + 309 + 5)
 
 typedef struct {
   double val;

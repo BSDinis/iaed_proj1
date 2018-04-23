@@ -260,10 +260,10 @@ static void update_max_min(sparse *m)
  */
 static void remove_mult(sparse *m, unsigned indices[], unsigned len)
 {
-  if (len == 0) return;
-
   pos nmin = init_pos(UINT_MAX, UINT_MAX), nmax = init_pos(0, 0);
   int i, j, k;
+
+  if (len == 0) return;
 
   for (i = j = k = 0; i < nelem(*m); i++) {
     if (k >= len || i != indices[k]) {
@@ -289,14 +289,14 @@ static void remove_mult(sparse *m, unsigned indices[], unsigned len)
  */
 void print_sparse(sparse m)
 {
+  char str[BUFFER_OUT_EL];
+  int i;
+
   if (empty_sparse(m)) {
     printf("empty matrix\n");
     return;
   }
 
-  char str[BUFFER_OUT_EL];
-
-  int i;
   for (i = 0; i < nelem(m); i++) {
     out_el(list(m)[i], str);
     printf("%s\n", str); 
@@ -314,7 +314,7 @@ void print_charact_sparse(sparse m)
     return;
   }
 
-  printf("[%u %u] [%u %u] %u / %u = %.3lf%%\n",
+  printf("[%u %u] [%u %u] %u / %u = %.3f%%\n",
       row(min(m)), col(min(m)), row(max(m)), col(max(m)),
       nelem(m), size_sparse(m), 100 * density_sparse(m));
 }

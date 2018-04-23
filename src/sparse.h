@@ -17,7 +17,6 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdarg.h>
-#include <unistd.h>
 #include <limits.h>
 
 #include "el.h"
@@ -29,10 +28,7 @@
 #define min_int(a, b) ((a < b) ? a : b)
 
 #define MAX_N_ELEM 10000
-#define MAX_N_ELEM_BUFF 5 // 10000 has 5 chars
-#define MAX_FILENAME 81 // extra character for terminator
-#define INIT_SIZE 100
-#define MAX_FLOAT_BUFFER 1000
+#define MAX_FILENAME 81 /* extra character for terminator */
 
 /* sparse datatype
  *

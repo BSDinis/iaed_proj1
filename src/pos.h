@@ -27,9 +27,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// TODO: search for a more precise value, in conformity with specs
-/* buffer for output string */
-#define BUFFER_OUT_POS 10000
+/* buffer for output string 
+ * UINT_MAX = 4294967295 :: 10 digits
+ * A position has 2 unsigned int's (20 chars) + 
+ * room for delimiters (5 chars). */
+#define BUFFER_OUT_POS 25
 
 typedef struct {
   unsigned int i, j;
