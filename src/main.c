@@ -43,9 +43,6 @@ void print_col(sparse m, char *cmd);
 /* sorts a sparse matrix, with regard to either the cols or the rows */
 void sort(sparse *m, char *cmd);
 
-/* compress a matrix */
-void compress(sparse m, char *cmd);
-
 /* changes the value of zero of a matrix */
 void ch_zero(sparse *m, char *cmd);
 
@@ -106,7 +103,7 @@ int main(int argc, char *argv[])
         break;
 
       case 's':
-        compress(m, cmd);
+        compress_sparse(m);
         break;
 
       case 'w':
@@ -233,14 +230,6 @@ void sort(sparse *m, char *cmd)
   /* quietly exits when finds a wrong command argument */
 }
   
-/* compress a matrix */
-void compress(sparse m, char *cmd)
-{
-  //TODO;
-  return;
-}
-
-
 /* changes the value of zero of a matrix */
 void ch_zero(sparse *m, char *cmd)
 {

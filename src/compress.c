@@ -15,14 +15,14 @@
 /*-------------------------------*/
 
 /* compresses a matrix into 3 arrays */
-static unsigned _compress(sparse m, double vals[], unsigned rows[], unsigned offsets[]);
+static unsigned compress(sparse m, double vals[], unsigned rows[], unsigned offsets[]);
 
 /* fills two arrays:
  *   1) list (a 2d array): in each position d, has the indices of the 
  *                         rows whose density is d
  *   2) size: has the number of rows whose density is d
  */
-static unsigned list_rows_by_density(sparse m, unsigned list[width_sparse(m) + 1][height_sparse(m) + 1], unsigned size[]);
+static unsigned list_rows_by_density(sparse m, unsigned list[width_sparse(m)][height_sparse(m)], unsigned size[]);
 
 /* calculates the density of the ith row of a sparse matrix */
 static unsigned row_density(sparse m, unsigned i);
@@ -53,7 +53,7 @@ void compress_sparse(sparse m)
 {
   double vals[nelem(m) * 2];
   unsigned rows[nelem(m) * 2];
-  unsigned offsets[height_sparse(m) + 1];
+  unsigned offsets[height_sparse(m)];
   unsigned compressed_len;
   unsigned i;
 
@@ -65,7 +65,7 @@ void compress_sparse(sparse m)
 
 
   /* do the compression */
-  compressed_len = _compress(m, vals, rows, offsets);
+  compressed_len = compress(m, vals, rows, offsets);
 
   /* print the result */
   printf("value =");
@@ -83,26 +83,23 @@ void compress_sparse(sparse m)
 
 /* auxiliar function: applies the actual compression algorithm 
  * returns the length of the compressed vectors (vals and rows)*/
-static unsigned _compress(sparse m, double vals[], unsigned rows[], unsigned offsets[])
+static unsigned compress(sparse m, double vals[], unsigned rows[], unsigned offsets[])
 {
-  unsigned list[width_sparse(m) + 1][height_sparse(m) + 1];
-  unsigned size[width_sparse(m) + 1];
+  unsigned list[width_sparse(m)][height_sparse(m)];
+  unsigned size[width_sparse(m)];
   unsigned max_dens;
   unsigned compressed_len, max_offset;
-  unsigned i, j, row;
+  int i, j, row;
 
   compressed_len = 0;
-  for (i = 0; i < nelem(m); i++) {
+  for (i = 0; i < 2 * nelem(m); i++) {
     vals[i] = zero(m);
     rows[i] = 0;
   }
 
   max_offset = 0;
-  for (i = row(min(m)); i <= row(max(m)); i++) {
-  }
-
   max_dens = list_rows_by_density(m, list, size);
-  for (i = max_dens; i >= 0; i++) {
+  for (i = max_dens; i >= 0; i--) {
     for (j = 0; j < size[i]; j++) {
       row = list[i][j];
       offsets[row - row(min(m))] = find_slot(m, vals, rows, compressed_len, row);
@@ -123,13 +120,13 @@ static unsigned _compress(sparse m, double vals[], unsigned rows[], unsigned off
  *
  * returns the maximum density;
  */
-static unsigned list_rows_by_density(sparse m, unsigned list[width_sparse(m) + 1][height_sparse(m) + 1], unsigned size[])
+static unsigned list_rows_by_density(sparse m, unsigned list[width_sparse(m)][height_sparse(m)], unsigned size[])
 {
   unsigned max_dens = 0, dens;
   int i;
 
   /* initialize the size array */
-  for (i = 0; i <= width_sparse(m); size[i++] = 0);
+  for (i = 0; i < width_sparse(m); size[i++] = 0);
 
   /* initialize the list array */
   for (i = row(min(m)); i <= row(max(m)); i++) {
@@ -168,7 +165,7 @@ static unsigned find_slot(sparse m, double vals[], unsigned rows[], unsigned val
   bool empty_row = true;
 
 
-  for (j = 0; j <= width_sparse(m); row[j] = zero(m));
+  for (j = 0; j < width_sparse(m); row[j++] = zero(m));
 
   for (j = 0; j < nelem(m); j++) {
     if (row(pos(list(m)[j])) == i) {
@@ -180,13 +177,15 @@ static unsigned find_slot(sparse m, double vals[], unsigned rows[], unsigned val
   /* in case the row is empty, there is nothing to be done and the offset is 0 */
   if (empty_row) return 0;
 
-  for (offset = 0; overlap(vals, row, vals_len, width_sparse(m) + 1, offset, zero(m)) 
+  for (offset = 0; overlap(vals, row, vals_len, width_sparse(m), offset, zero(m)) 
                 && vals_len - offset > 0; offset++);
 
 
-  for (j = 0; j <= width_sparse(m); j++) {
-    vals[offset + j] = row[j];
-    rows[offset + j] = (row[j] == zero(m)) ? 0 : i;
+  for (j = 0; j < width_sparse(m); j++) {
+    if (row[j] != zero(m)) {
+      vals[offset + j] = row[j];
+      rows[offset + j] = i;
+    }
   }
 
   return offset;
@@ -206,9 +205,9 @@ static bool overlap(double a[], double b[], unsigned len_a, unsigned len_b, unsi
   unsigned i;
   for (i = 0; i < len; i++) {
     if (a[offset + i] != zero && b[i] != zero) {
-      return false;
+      return true;
     }
   }
 
-  return true;
+  return false;
 }
