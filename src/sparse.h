@@ -28,7 +28,7 @@
 #define min_int(a, b) ((a < b) ? a : b)
 
 #define MAX_N_ELEM 10000
-#define MAX_FILENAME 81 /* extra character for terminator */
+#define MAX_FILENAME 80 
 
 /* sparse datatype
  *
