@@ -77,7 +77,7 @@ void compress_sparse(sparse m)
   printf("\n");
 
   printf("offset =");
-  for (i = 0; i <= height_sparse(m); i++) printf(" %u", offsets[i]);
+  for (i = 0; i < height_sparse(m); i++) printf(" %u", offsets[i]);
   printf("\n");
 }
 
