@@ -20,9 +20,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-/* buffer for output string for element
+/*
+ * buffer for output string for element
  * position + greatest finite double is ~ 1.8 E 308
- * added 5 chars for delimiters */
+ * added 5 chars for delimiters 
+ */
 #define BUFFER_OUT_EL (BUFFER_OUT_POS + 309 + 5)
 
 typedef struct {
