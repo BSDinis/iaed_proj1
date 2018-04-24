@@ -13,6 +13,14 @@
  *   el
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stdarg.h>
+#include <limits.h>
+
+#include "sort.h"
 #include "sparse.h"
 
 
@@ -377,4 +385,76 @@ void sort_sparse(sparse *m, bool col)
   key_arr[b] = key_row;
 
   radix_sort(list(*m), 0, nelem(*m) - 1, m_list, M_list, key_arr, 2);
+}
+
+
+/* print a row */
+void print_row_i(sparse m, unsigned row_i)
+{
+  el list[MAX_N_ELEM];
+  unsigned i, j, k;
+
+  if (row_i < row(min(m)) || row_i > row(max(m))) {
+    printf("empty line\n");
+    return;
+  }
+
+  for (i = j = 0; i < nelem(m); i++) {
+    if (row(pos(list(m)[i])) == row_i) {
+      list[j++] = list(m)[i];
+    }
+  }
+  if (j == 0) {
+    printf("empty line\n");
+    return;
+  }
+  j--;
+
+  counting_sort(list, 0, j, col(min(m)), col(max(m)), &key_col);
+
+  for (i = col(min(m)), k = 0; i <= col(max(m)); i++) {
+    if (k <= j && col(pos(list[k])) == i) {
+      printf(" %.3f", val(list[k++]));
+    }
+    else {
+      printf(" %.3f", zero(m));
+    }
+  }
+  printf("\n");
+}
+
+/* print a col */
+void print_col_j(sparse m, unsigned col_j)
+{
+  unsigned i, j, k;
+  el list[MAX_N_ELEM];
+  char str[BUFFER_OUT_EL];
+
+  if (col_j < col(min(m)) || col_j > col(max(m))) {
+    printf("empty column\n");
+    return;
+  }
+
+  for (i = j = 0; i < nelem(m); i++) {
+    if (col(pos(list(m)[i])) == col_j) {
+      list[j++] = list(m)[i];
+    }
+  }
+  if (j == 0) {
+    printf("empty column\n");
+    return;
+  }
+  j--;
+
+  counting_sort(list, 0, j, row(min(m)), row(max(m)), &key_row);
+
+  for (i = row(min(m)), k = 0; i <= row(max(m)); i++) {
+    if (k <= j && row(pos(list[k])) == i) {
+      out_el(list[k++], str);
+    }
+    else {
+      out_el(init_el(0, init_pos(i, col_j)), str);
+    }
+    printf("%s\n", str);
+  }
 }

@@ -14,11 +14,7 @@
 #ifndef SORT_H
 #define SORT_H
 
-#include <stdlib.h>
-#include <stdbool.h>
 #include "el.h"
-#include "pos.h"
-#include "sparse.h"
 
 typedef el item;
 

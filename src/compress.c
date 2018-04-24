@@ -9,6 +9,7 @@
  */
 
 #include "compress.h"
+#include "sort.h"
 
 /*-------------------------------*/
 /* prototypes */
@@ -42,8 +43,7 @@ static unsigned find_slot(sparse m, double vals[], unsigned rows[], unsigned val
  * false: they don't overlap
  * (note: the zero(m) is not considered a filled position)
  */
-static bool overlap(double a[], double b[],
-    unsigned len_a, unsigned len_b, unsigned offset, double zero);
+static bool overlap(double a[], el b[], unsigned len_b, unsigned offset, double zero);
 
 /*-------------------------------*/
 /*-------------------------------*/
@@ -161,30 +161,26 @@ static unsigned row_density(sparse m, unsigned i)
  */
 static unsigned find_slot(sparse m, double vals[], unsigned rows[], unsigned vals_len,  unsigned i)
 {
-  double row[MAX_N_ELEM];
-  unsigned j, offset;
-  bool empty_row = true;
+  el row[height_sparse(m)];
+  unsigned j, k, offset;
 
-
-  for (j = 0; j < width_sparse(m); row[j++] = zero(m));
-
-  for (j = 0; j < nelem(m); j++) {
+  for (j = 0, k = 0; j < nelem(m); j++) {
     if (row(pos(list(m)[j])) == i) {
-      row[col(pos(list(m)[j])) - col(min(m))] = val(list(m)[j]);
-      empty_row = false;
+      row[k++] = list(m)[j];
     }
   }
 
   /* in case the row is empty, there is nothing to be done and the offset is 0 */
-  if (empty_row) return 0;
+  if (k == 0) return 0;
 
-  for (offset = 0; overlap(vals, row, vals_len, width_sparse(m), offset, zero(m)) 
-                && vals_len - offset > 0; offset++);
+  counting_sort(row, 0, k - 1, col(min(m)), col(max(m)), &key_col);
+
+  for (offset = 0; overlap(vals, row, k, offset, zero(m)) && vals_len - offset > 0; offset++);
 
 
-  for (j = 0; j < width_sparse(m); j++) {
-    if (row[j] != zero(m)) {
-      vals[offset + j] = row[j];
+  for (j = 0; j < k; j++) {
+    if (val(row[j]) != zero(m)) {
+      vals[offset + j] = val(row[j]);
       rows[offset + j] = i;
     }
   }
@@ -200,12 +196,11 @@ static unsigned find_slot(sparse m, double vals[], unsigned rows[], unsigned val
  * false: they don't overlap
  * (note: the zero is not considered a filled position)
  */
-static bool overlap(double a[], double b[], unsigned len_a, unsigned len_b, unsigned offset, double zero)
+static bool overlap(double a[], el b[], unsigned len_b, unsigned offset, double zero)
 {
-  unsigned len = min_int(len_a - offset, len_b);
   unsigned i;
-  for (i = 0; i < len; i++) {
-    if (a[offset + i] != zero && b[i] != zero) {
+  for (i = 0; i < len_b; i++) {
+    if (a[offset + col(pos(b[i]))] != zero && val(b[i]) != zero) {
       return true;
     }
   }

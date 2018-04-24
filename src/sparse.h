@@ -12,16 +12,9 @@
 #ifndef SPARSE_H
 #define SPARSE_H
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdbool.h>
-#include <string.h>
-#include <stdarg.h>
-#include <limits.h>
-
 #include "el.h"
 #include "pos.h"
-#include "sort.h"
 
 /* define min and max functions as macros */
 #define max_int(a, b) ((a > b) ? a : b)
@@ -69,10 +62,8 @@ typedef struct {
 
 /* 
  * initializes a matrix
- * may take a filename as input, in which case tries to load 
- * matrix of a *.sm file; if it fails, initializes a new matrix
  * 
- * n: number of extra arguments; in principle should be 0 or 1,
+ * n: number of extra arguments; should be 0 or 1,
  * but treats any other value as 0, creating a new matrix
  */
 sparse init_sparse(int n, ...);
@@ -101,5 +92,11 @@ void change_zero(sparse *m, double new_zero);
 /* sorts a sparse matrix, with regard to either the columns or the rows,
  * depending on a flag */
 void sort_sparse(sparse *m, bool col);
+
+/* print a row */
+void print_row_i(sparse m, unsigned row_i);
+
+/* print a col */
+void print_col_j(sparse m, unsigned col_j);
 
 #endif /* !SPARSE_H */

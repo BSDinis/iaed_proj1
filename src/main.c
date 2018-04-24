@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "sparse.h"
 #include "compress.h"
@@ -146,79 +147,21 @@ void add(sparse *m, char *cmd)
 
 
 /* prints an entire row of the matrix */
-/* note to self: refactor :- push to sparse.c */
 void print_row(sparse m, char *cmd)
 {
-  unsigned i, j, k, row_i;
-  el list[MAX_N_ELEM];
-  sscanf(cmd + 2, "%u", &row_i);
-
-  if (row_i < row(min(m)) || row_i > row(max(m))) {
-    printf("empty line\n");
-    return;
-  }
-
-  for (i = j = 0; i < nelem(m); i++) {
-    if (row(pos(list(m)[i])) == row_i) {
-      list[j++] = list(m)[i];
-    }
-  }
-  if (j == 0) {
-    printf("empty line\n");
-    return;
-  }
-  j--;
-
-  counting_sort(list, 0, j, col(min(m)), col(max(m)), &key_col);
-
-  for (i = col(min(m)), k = 0; i <= col(max(m)); i++) {
-    if (k <= j && col(pos(list[k])) == i) {
-      printf(" %.3f", val(list[k++]));
-    }
-    else {
-      printf(" %.3f", zero(m));
-    }
-  }
-  printf("\n");
+  unsigned i;
+  sscanf(cmd + 2, "%u", &i);
+  print_row_i(m, i);
 }
-
 
 /* prints an entire column of the matrix */
 void print_col(sparse m, char *cmd)
 {
-  unsigned i, j, k, col_i;
-  el list[MAX_N_ELEM];
-  char str[BUFFER_OUT_EL];
-  sscanf(cmd + 2, "%u", &col_i);
-
-  if (col_i < col(min(m)) || col_i > col(max(m))) {
-    printf("empty column\n");
-    return;
-  }
-
-  for (i = j = 0; i < nelem(m); i++) {
-    if (col(pos(list(m)[i])) == col_i) {
-      list[j++] = list(m)[i];
-    }
-  }
-  if (j == 0) {
-    printf("empty column\n");
-    return;
-  }
-  j--;
-
-  counting_sort(list, 0, j, row(min(m)), row(max(m)), &key_row);
-
-  for (i = row(min(m)), k = 0; i <= row(max(m)); i++) {
-    if (k <= j && row(pos(list[k])) == i) {
-      out_el(list[k++], str);
-    }
-    else {
-      out_el(init_el(0, init_pos(i, col_i)), str);
-    }
-    printf("%s\n", str);
-  }
+  unsigned j;
+  sscanf(cmd + 2, "%u", &j);
+  print_col_j(m, j);
 }
+
 /* sorts a sparse matrix, with regard to either the cols or the rows */
 void sort(sparse *m, char *cmd)
 {

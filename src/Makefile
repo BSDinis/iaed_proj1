@@ -1,6 +1,6 @@
 CC=gcc
-CFLAGS= -g -ansi -Wall -Werror -I.
-LDFLAGS= -lm 
+CFLAGS= -g -pg -ansi -Wall -Werror -I.
+LDFLAGS= -pg
 
 all: main
 
