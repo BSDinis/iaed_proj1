@@ -23,7 +23,7 @@ static unsigned compress(sparse m, double vals[], unsigned rows[], unsigned offs
  *                         rows whose density is d
  *   2) size: has the number of rows whose density is d
  */
-static unsigned list_rows_by_density(sparse m, unsigned list[MAX_N_ELEM][100], unsigned size[]);
+static unsigned list_rows_by_density(sparse m, unsigned list[width_sparse(m) + 1][height_sparse(m) + 1], unsigned size[width_sparse(m) + 1]);
 
 /* calculates the density of the ith row of a sparse matrix */
 static unsigned row_density(sparse m, unsigned i);
@@ -43,7 +43,7 @@ static unsigned find_slot(sparse m, double vals[], unsigned rows[], unsigned val
  * false: they don't overlap
  * (note: the zero(m) is not considered a filled position)
  */
-static bool overlap(double a[], el b[], unsigned len_b, unsigned offset, double zero);
+static bool overlap(double a[], el b[], unsigned len_b, unsigned offset, unsigned left_col, double zero);
 
 /*-------------------------------*/
 /*-------------------------------*/
@@ -51,9 +51,9 @@ static bool overlap(double a[], el b[], unsigned len_b, unsigned offset, double 
 /* compresses a sparse matrix, printing the output */
 void compress_sparse(sparse m)
 {
-  double vals[MAX_N_ELEM * 2];
-  unsigned rows[MAX_N_ELEM * 2];
-  unsigned offsets[MAX_N_ELEM];
+  double vals[nelem(m) * 2];
+  unsigned rows[nelem(m) * 2];
+  unsigned offsets[nelem(m)];
   unsigned compressed_len;
   unsigned i;
 
@@ -85,8 +85,8 @@ void compress_sparse(sparse m)
  * returns the length of the compressed vectors (vals and rows)*/
 static unsigned compress(sparse m, double vals[], unsigned rows[], unsigned offsets[])
 {
-  unsigned list[MAX_N_ELEM][100];
-  unsigned size[MAX_N_ELEM];
+  unsigned list[width_sparse(m) + 1][height_sparse(m) + 1];
+  unsigned size[width_sparse(m) + 1];
   unsigned max_dens;
   unsigned compressed_len, max_offset;
   int i, j, row;
@@ -121,13 +121,13 @@ static unsigned compress(sparse m, double vals[], unsigned rows[], unsigned offs
  *
  * returns the maximum density;
  */
-static unsigned list_rows_by_density(sparse m, unsigned list[MAX_N_ELEM][100], unsigned size[])
+static unsigned list_rows_by_density(sparse m, unsigned list[width_sparse(m) + 1][height_sparse(m) + 1], unsigned size[width_sparse(m) + 1])
 {
   unsigned max_dens = 0, dens;
   int i;
 
   /* initialize the size array */
-  for (i = 0; i < width_sparse(m); size[i++] = 0);
+  for (i = 0; i <= width_sparse(m); size[i++] = 0);
 
   /* initialize the list array */
   for (i = row(min(m)); i <= row(max(m)); i++) {
@@ -161,7 +161,7 @@ static unsigned row_density(sparse m, unsigned i)
  */
 static unsigned find_slot(sparse m, double vals[], unsigned rows[], unsigned vals_len,  unsigned i)
 {
-  el row[height_sparse(m)];
+  el row[width_sparse(m) + 1];
   unsigned j, k, offset;
 
   for (j = 0, k = 0; j < nelem(m); j++) {
@@ -173,16 +173,15 @@ static unsigned find_slot(sparse m, double vals[], unsigned rows[], unsigned val
   /* in case the row is empty, there is nothing to be done and the offset is 0 */
   if (k == 0) return 0;
 
-  counting_sort(row, 0, k - 1, col(min(m)), col(max(m)), &key_col);
-
-  for (offset = 0; overlap(vals, row, k, offset, zero(m)) && vals_len - offset > 0; offset++);
+  for (offset = 0; 
+      overlap(vals, row, k, offset, col(min(m)), zero(m)) 
+      && vals_len - offset > 0;
+      offset++);
 
 
   for (j = 0; j < k; j++) {
-    if (val(row[j]) != zero(m)) {
-      vals[offset + j] = val(row[j]);
-      rows[offset + j] = i;
-    }
+    vals[offset + col(pos(row[j])) - col(min(m))] = val(row[j]);
+    rows[offset + col(pos(row[j])) - col(min(m))] = i;
   }
 
   return offset;
@@ -190,17 +189,21 @@ static unsigned find_slot(sparse m, double vals[], unsigned rows[], unsigned val
 
 
 /*
- * given two arrays and an offset (applied to the second),
- * finds if they overlap or not
+ * given an array of vals and an array of elements,
+ * given an offset applied to the second array
+ * given the leftmost collumn of the sparse matrix 
+ * (to normalize the poisitions to zero)
+ *
+ * finds if they overlap or not (ie, if b fits in a)
  * true: they do overlap
  * false: they don't overlap
  * (note: the zero is not considered a filled position)
  */
-static bool overlap(double a[], el b[], unsigned len_b, unsigned offset, double zero)
+static bool overlap(double a[], el b[], unsigned len_b, unsigned offset, unsigned left_col, double zero)
 {
   unsigned i;
   for (i = 0; i < len_b; i++) {
-    if (a[offset + col(pos(b[i]))] != zero && val(b[i]) != zero) {
+    if (a[offset + col(pos(b[i])) - left_col] != zero) {
       return true;
     }
   }

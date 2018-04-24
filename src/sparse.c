@@ -179,8 +179,8 @@ bool add_el(sparse *m, el e)
    *
    * if there is, replace or remove and exit.
    * important property: there aren't repeated positions
-   */
-  /* quick check */
+   *
+   * quick check */
   if (row(pos(e)) >= row(min(*m)) && row(pos(e)) <= row(max(*m)) &&
         col(pos(e)) >= col(min(*m)) && col(pos(e)) <= col(max(*m))) {
 
