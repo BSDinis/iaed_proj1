@@ -130,8 +130,10 @@ bool get_command(char *cmd)
 {
   if (fgets(cmd, CMD_BUFFER, stdin) != NULL) {
     /* remove newline character */
-    cmd[strlen(cmd) - 1] = '\0';  
-    return (strcmp(cmd, "q") != 0);
+    if (cmd[strlen(cmd) - 1] == '\n') {
+      cmd[strlen(cmd) - 1] = '\0';  
+      return (strcmp(cmd, "q") != 0);
+    }
   }
   return false;
 }
