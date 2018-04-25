@@ -64,7 +64,7 @@ void out_pos(pos p, char *out)
  */
 pos max_pos(pos a, pos b)
 {
-  return init_pos(max(row(a), row(b)), max(col(a), col(b)));
+  return init_pos(max_int(row(a), row(b)), max_int(col(a), col(b)));
 }
 
 /* 
@@ -77,5 +77,5 @@ pos max_pos(pos a, pos b)
  */
 pos min_pos(pos a, pos b)
 {
-  return init_pos(min(row(a), row(b)), min(col(a), col(b)));
+  return init_pos(min_int(row(a), row(b)), min_int(col(a), col(b)));
 }

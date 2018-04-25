@@ -16,7 +16,6 @@
 
 #include "sparse.h"
 
-/* compresses a sparse matrix, printing the output */
 void compress_sparse(sparse m);
 
 #endif /* !COMPRESS_H */
