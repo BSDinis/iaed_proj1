@@ -135,7 +135,7 @@ static void list_rows_by_density(sparse m, unsigned row_dens[min_int(height_spar
    * O(n^2): you can do better
    */
   for (i = 0; i < max_size; i++) {
-    max_dens = 0;
+    max_dens = max_dens_row = 0;
     for (j = 0; j < max_size; j++) {
       if ((int) dens[j] > max_dens) {
         max_dens = dens[j];
