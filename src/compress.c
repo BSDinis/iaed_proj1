@@ -23,10 +23,11 @@ static unsigned compress(sparse m, double vals[], unsigned rows[], unsigned offs
  *                         rows whose density is d
  *   2) size: has the number of rows whose density is d
  */
-static unsigned list_rows_by_density(sparse m, unsigned list[width_sparse(m) + 1][height_sparse(m) + 1], unsigned size[width_sparse(m) + 1]);
+/*static unsigned list_rows_by_density(sparse m, unsigned list[][min_int(height_sparse(m), nelem(m)) + 1 + 1]);*/
+static void list_rows_by_density(sparse m, unsigned rows[min_int(height_sparse(m), nelem(m)) + 1]);
 
 /* calculates the density of the ith row of a sparse matrix */
-static unsigned row_density(sparse m, unsigned i);
+/* static unsigned row_density(sparse m, unsigned i); */
 
 /* 
  * finds a slot for the ith line of the sparse matrix in the compressed vector;
@@ -85,11 +86,9 @@ void compress_sparse(sparse m)
  * returns the length of the compressed vectors (vals and rows)*/
 static unsigned compress(sparse m, double vals[], unsigned rows[], unsigned offsets[])
 {
-  unsigned list[width_sparse(m) + 1][height_sparse(m) + 1];
-  unsigned size[width_sparse(m) + 1];
-  unsigned max_dens;
+  unsigned row_dens[height_sparse(m)];
   unsigned compressed_len, max_offset;
-  int i, j, row;
+  int i, row;
   
 
   compressed_len = 0;
@@ -99,14 +98,13 @@ static unsigned compress(sparse m, double vals[], unsigned rows[], unsigned offs
   }
 
   max_offset = 0;
-  max_dens = list_rows_by_density(m, list, size);
-  for (i = max_dens; i >= 0; i--) {
-    for (j = 0; j < size[i]; j++) {
-      row = list[i][j];
-      offsets[row - row(min(m))] = find_slot(m, vals, rows, compressed_len, row);
-      max_offset = max_int(max_offset, offsets[row - row(min(m))]);
-      compressed_len = max_offset + width_sparse(m);
-    }
+  list_rows_by_density(m, row_dens);
+
+  for (i = 0; i < height_sparse(m); i++) {
+    row = row_dens[i];
+    offsets[row - row(min(m))] = find_slot(m, vals, rows, compressed_len, row);
+    max_offset = max_int(max_offset, offsets[row - row(min(m))]);
+    compressed_len = max_offset + width_sparse(m);
   }
 
   return compressed_len;
@@ -114,32 +112,42 @@ static unsigned compress(sparse m, double vals[], unsigned rows[], unsigned offs
 
 
 /* 
- * fills two arrays:
- *   1) list (a 2d array): in each position d, has the indices of the 
- *                         rows whose density is d
- *   2) size: has the number of rows whose density is d
- *
- * returns the maximum density;
+ * fills a vector
+ * rows[] ordered by density (decreasing) and row (increasing)
+ * ie if two rows have the same density, the one with lesser line comes first
  */
-static unsigned list_rows_by_density(sparse m, unsigned list[width_sparse(m) + 1][height_sparse(m) + 1], unsigned size[width_sparse(m) + 1])
+static void list_rows_by_density(sparse m, unsigned row_dens[min_int(height_sparse(m), nelem(m)) + 1])
 {
-  unsigned max_dens = 0, dens;
-  int i;
+  unsigned max_size = min_int(height_sparse(m), nelem(m)) + 1;
+  unsigned dens[max_size];
+  unsigned max_dens_row, max_dens;
+  int i, j;
 
-  /* initialize the size array */
-  for (i = 0; i <= width_sparse(m); size[i++] = 0);
+  /* initialize at 1: zero is for checked out lines */
+  for (i = 0; i < max_size; dens[i++] = 1);
 
-  /* initialize the list array */
-  for (i = row(min(m)); i <= row(max(m)); i++) {
-    dens = row_density(m, i);
-    max_dens = max_int(max_dens, dens);
-    list[dens][size[dens]++] = i;
+  /* initialize density vector */
+  for (i = 0; i < nelem(m); i++) {
+    dens[row(pos(list(m)[i])) - row(min(m))]++;
   }
 
-  return max_dens;
+  /* fill in rows vector 
+   * O(n^2): you can do better
+   */
+  for (i = 0; i < max_size; i++) {
+    max_dens = 0;
+    for (j = 0; j < max_size; j++) {
+      if ((int) dens[j] > max_dens) {
+        max_dens = dens[j];
+        max_dens_row = j;
+      }
+    }
+    dens[max_dens_row] = 0;
+    row_dens[i] = max_dens_row + row(min(m));
+  }
 }
 
-/* calculates the density of the ith row of a sparse matrix */
+/* calculates the density of the ith row of a sparse matrix 
 static unsigned row_density(sparse m, unsigned i)
 {
   unsigned cnt = 0;
@@ -152,6 +160,7 @@ static unsigned row_density(sparse m, unsigned i)
 
   return cnt;
 }
+*/
 
 
 /* 
