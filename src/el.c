@@ -28,8 +28,9 @@ el init_el(double val, pos p)
 
 
 /* 
- * output string to print 
- * given an element, writes the representation on out
+ * input: element and a buffer to be written
+ * writes the representation on out
+ * format: <pos>=<value>
  */
 void out_el(el e, char out[])
 {
@@ -40,7 +41,9 @@ void out_el(el e, char out[])
 
 /* 
  * output string to save to file 
- * given an element, writes the representation on out
+ * input: element and a buffer to be written
+ * writes the representation on out
+ * format: <row> <col> <value>
  */
 void save_el(el e, char out[])
 {
@@ -48,9 +51,10 @@ void save_el(el e, char out[])
 }
 
 
-/* 
- * get element from string 
- * the string has the format: <ulong> <ulong> <double>
+/*                 
+ * input: string 
+ * returns: element extracted from string
+ * format: <ulong> <ulong> <double>
  */
 el str_to_el(char *input)
 {

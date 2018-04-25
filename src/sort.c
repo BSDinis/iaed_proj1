@@ -10,45 +10,41 @@
  */
 
 #include "sort.h"
+#include "el.h"
 
-#include <stdbool.h> 
 #include <stdlib.h> 
 
 /*-------------------------------*/
 /* prototypes */
 /*-------------------------------*/
 
-/* gets the first key: row of the position */
 static unsigned long key_row(el a); 
 
-/* gets the second key: col of the position */
 static unsigned long key_col(el a); 
 
-/* implements counting sort using a certain key function */
-static void counting_sort(el list[], int l, int r, unsigned long m, unsigned long M, unsigned long (*key)(el));
+static void counting_sort(el list[], int l, int r, unsigned long m,
+    unsigned long M, unsigned long (*key)(el));
 
-/* implements radix sort LSD using a n key functions, 
- * given in a list of function pointers, with ascending significance
- *
- * eg: order a list of pairs of integers (x, y), with y being the 
- * least significant
- *
- * radix_sort(list, l, r, m_list, M_list, 
- * {<function that selects y>, <function that selects, x>, 2)
- */
 static void radix_sort(el list[], int l, int r, unsigned long m_list[],
     unsigned long M_list[], unsigned long (*key_arr[])(el), int arglen);
+
 /*-------------------------------*/
 /*-------------------------------*/
 /*-------------------------------*/
 
-/* gets the first key: row of the position */
+/* 
+ * input: element
+ * returns: row of the element
+ */
 static unsigned long key_row(el a)
 {
   return row(pos(a));
 }
 
-/* gets the second key: col of the position */
+/* 
+ * input: element
+ * returns: column of the element
+ */
 static unsigned long key_col(el a)
 {
   return col(pos(a));
@@ -58,6 +54,8 @@ static unsigned long key_col(el a)
 /* 
  * implements the counting sort using a certain compare function
  * 
+ * inputs:
+ * list: becomes ordered 
  * l: leftmost position to consider
  * r: rightmost position to consider
  * m: minimum value of the key of the els of the list
@@ -68,11 +66,10 @@ static void counting_sort(el list[], int l, int r, unsigned long m,
     unsigned long M, unsigned long (*key)(el))
 {
   /* size_cnt is the number of possible keys */
-  /* size_aux is the number of elements in list */
   int i;
-  int size_cnt = M - m + 1, size_aux = r - l + 1;
+  int size_cnt = M - m + 1;
   int cnt[size_cnt + 1];
-  el aux[size_aux];
+  el aux[r - l + 1];
   
   for (i = 0; i < size_cnt; cnt[i++] = 0);
 
@@ -81,12 +78,11 @@ static void counting_sort(el list[], int l, int r, unsigned long m,
     cnt[(*key)(list[i]) - m + 1]++; 
   }
 
-  /* accumulate */
   for (i = 1; i <= size_cnt; i++) {
     cnt[i] += cnt[i - 1];
   }
 
-  /* construct auxiliar */
+  /* construct auxiliar; does the same shift */
   for (i = l; i <= r; i++) {
     aux[cnt[(*key)(list[i]) - m]++] = list[i];
   }
@@ -96,14 +92,28 @@ static void counting_sort(el list[], int l, int r, unsigned long m,
     list[i] = aux[i - l];
   }
 }
-/* implements radix sort LSD using a n key functions, 
- * given in a list of function pointers, with ascending significant
+
+
+/* 
+ * implements radix sort LSD using n key functions, 
+ * given in a list of function pointers, with ascending significance
  *
- * ex: order a list of pairs of integers (x, y), with y being the 
- * least significant
+ * inputs:
+ * list: becomes ordered 
+ * l: leftmost position
+ * r: rightmost position
+ * m_list: list of minimum values
+ * M_list: list of maximum values
+ * key_arr: array of pointers to function that compute the keys
+ * n: number of keys to consider
+ *
+ * usage example: 
+ * order a list of pairs of integers (x, y), 
+ * with y being the least significant
  *
  * radix_sort(list, l, r, m_list, M_list, 
  * {<function that selects y>, <function that selects, x>, 2)
+ *
  */
 static void radix_sort(el list[], int l, int r, unsigned long m_list[], 
     unsigned long M_list[], unsigned long (*key_arr[])(el), int arglen)
