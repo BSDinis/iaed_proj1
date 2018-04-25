@@ -14,8 +14,6 @@
 #ifndef COMPRESS_H
 #define COMPRESS_H
 
-#include "pos.h"
-#include "el.h"
 #include "sparse.h"
 
 /* compresses a sparse matrix, printing the output */

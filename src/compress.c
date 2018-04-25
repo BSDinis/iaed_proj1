@@ -9,7 +9,13 @@
  */
 
 #include "compress.h"
-#include "sort.h"
+#include "pos.h"
+#include "el.h"
+
+#include <stdio.h>
+
+#define max_int(a, b) ((a > b) ? a : b)
+#define min_int(a, b) ((a < b) ? a : b)
 
 /*-------------------------------*/
 /* prototypes */
@@ -18,16 +24,8 @@
 /* compresses a matrix into 3 arrays */
 static unsigned long compress(sparse m, double vals[], unsigned long rows[], unsigned long offsets[]);
 
-/* fills two arrays:
- *   1) list (a 2d array): in each position d, has the indices of the 
- *                         rows whose density is d
- *   2) size: has the number of rows whose density is d
- */
-/*static unsigned long list_rows_by_density(sparse m, unsigned long list[][min_int(height_sparse(m), nelem(m)) + 1 + 1]);*/
+/* fills the rows array which has the order by which the compressed array should be filled*/
 static void list_rows_by_density(sparse m, unsigned long rows[min_int(height_sparse(m), nelem(m)) + 1]);
-
-/* calculates the density of the ith row of a sparse matrix */
-/* static unsigned long row_density(sparse m, unsigned long i); */
 
 /* 
  * finds a slot for the ith line of the sparse matrix in the compressed vector;

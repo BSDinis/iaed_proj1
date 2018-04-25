@@ -23,6 +23,10 @@
 #include "sort.h"
 #include "sparse.h"
 
+#define max_int(a, b) ((a > b) ? a : b)
+#define min_int(a, b) ((a < b) ? a : b)
+
+#define inside_sparse(m, e) (row(pos(e)) >= row(min(m)) && row(pos(e)) <= row(max(m)) && col(pos(e)) >= col(min(m)) && col(pos(e)) <= col(max(m)))
 
 /*-------------------------------*/
 /* prototypes */
@@ -167,14 +171,9 @@ bool add_el(sparse *m, el e)
   int i;
 
   /* check if there is an element with the same position in the matrix
-   *
    * if there is, replace or remove and exit.
-   * important property: there aren't repeated positions
-   *
-   * quick check */
-  if (row(pos(e)) >= row(min(*m)) && row(pos(e)) <= row(max(*m)) &&
-        col(pos(e)) >= col(min(*m)) && col(pos(e)) <= col(max(*m))) {
-
+   * important property: there aren't repeated positions */
+  if (inside_sparse(*m, e)) {
     for (i = 0; i < nelem(*m) && !eq_pos(pos(e), pos(list(*m)[i])); i++);
 
     if (i != nelem(*m)) {
@@ -235,14 +234,8 @@ static void remove_at(sparse *m, unsigned long index)
 static void update_max_min(sparse *m)
 {
   int i;
-  pos nmax, nmin;
+  pos nmin = init_pos(ULONG_MAX, ULONG_MAX), nmax = init_pos(0, 0);
 
-  if (empty_sparse(*m)) {
-    max(*m) = min(*m) = init_pos(0, 0);
-    return;
-  }
-
-  nmax = nmin = pos(list(*m)[0]);
   for (i = 0; i < nelem(*m); i++) {
     nmax = max_pos(nmax, pos(list(*m)[i]));
     nmin = min_pos(nmin, pos(list(*m)[i]));
@@ -259,8 +252,8 @@ static void update_max_min(sparse *m)
  */
 static void remove_mult(sparse *m, unsigned long indices[], unsigned long len)
 {
-  pos nmin = init_pos(ULONG_MAX, ULONG_MAX), nmax = init_pos(0, 0);
   int i, j, k;
+  pos nmin = init_pos(ULONG_MAX, ULONG_MAX), nmax = init_pos(0, 0);
 
   if (len == 0) return;
 
@@ -341,42 +334,6 @@ void change_zero(sparse *m, double new_zero)
 }
 
 
-/*
- * sorts a sparse matrix, with regard to either the columns or the rows,
- * depending on a flag
- */
-void sort_sparse(sparse *m, bool col)
-{
-  /* creates instances for arguments of the sorting function */
-  /* magic number 2: dimension of the tensor (matrix -> rank 2 tensor)
-   * is not a constant as it would be more confusing and would not have
-   * any purpose, since we need to assign values to the lists in each
-   * position */
-  unsigned long m_list[2], M_list[2];
-  unsigned long (*key_arr[2])(item);
-
-  /* variables a and b avoid code repetition */
-  int a, b;
-  if (!col) {
-    /* order by rows */
-    a = 0;
-    b = 1;
-  }
-  else {
-    /* order by columns */
-    a = 1;
-    b = 0;
-  }
-
-  m_list[a] = col(min(*m));
-  M_list[a] = col(max(*m));
-  key_arr[a] = key_col;
-  m_list[b] = row(min(*m));
-  M_list[b] = row(max(*m));
-  key_arr[b] = key_row;
-
-  radix_sort(list(*m), 0, nelem(*m) - 1, m_list, M_list, key_arr, 2);
-}
 
 
 /* print a row */

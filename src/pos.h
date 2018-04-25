@@ -23,10 +23,6 @@
 #ifndef POS_H
 #define POS_H
 
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 /* buffer for output string for position
  * UINT_MAX = 4294967295 :: 10 digits
  * 2 uints + delimiters + terminator ~ 25 chars
@@ -38,8 +34,8 @@ typedef struct {
 } pos;
 
 /* selectors */
-#define row(a) (a.i)
-#define col(a) (a.j)
+#define row(a) ((a).i)
+#define col(a) ((a).j)
 
 /* equality */
 #define eq_pos(a, b) (row(a) == row(b) && col(a) == col(b))

@@ -16,10 +16,6 @@
 #include "el.h"
 #include "pos.h"
 
-/* define min and max functions as macros */
-#define max_int(a, b) ((a > b) ? a : b)
-#define min_int(a, b) ((a < b) ? a : b)
-
 #define MAX_N_ELEM 10000
 #define MAX_FILENAME 80 
 
@@ -88,10 +84,6 @@ void print_charact_sparse(sparse m);
 
 /* changes the value of zero */
 void change_zero(sparse *m, double new_zero);
-
-/* sorts a sparse matrix, with regard to either the columns or the rows,
- * depending on a flag */
-void sort_sparse(sparse *m, bool col);
 
 /* print a row */
 void print_row_i(sparse m, unsigned long row_i);
