@@ -42,22 +42,12 @@ typedef struct {
 /* comparison: operates on the value */
 #define less_el(a, b) (val(a) < val(b))
 
-/* constructor */
 el init_el(double val, pos p);
 
-/* creates output string to print:
- * exits with error if the buffer is exceeded  
- * (out must be initialized with the same size)
- */
-void out_el(el e, char *out);
+void out_el(el e, char out[]);
 
-/* creates output string to save to file:
- * exits with error if the buffer is exceeded  
- * (out must be initialized with the same size)
- */
-void save_el(el e, char *out);
+void save_el(el e, char out[]);
 
-/* get element from string in the forma "u u double"*/
 el str_to_el(char *input);
 
 

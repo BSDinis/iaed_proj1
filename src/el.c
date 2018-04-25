@@ -14,7 +14,10 @@
 #include <ctype.h>
 
 
-/* constructor */
+/* 
+ * constructor:
+ * input: a value (double) and a position 
+ */
 el init_el(double val, pos p)
 {
   el e;
@@ -24,7 +27,10 @@ el init_el(double val, pos p)
 }
 
 
-/* output string to print */
+/* 
+ * output string to print 
+ * given an element, writes the representation on out
+ */
 void out_el(el e, char out[])
 {
   char pos_str[BUFFER_OUT_POS];
@@ -32,14 +38,20 @@ void out_el(el e, char out[])
   sprintf(out, "%s=%.3f", pos_str, val(e));
 }
 
-/* output string to save to file */
+/* 
+ * output string to save to file 
+ * given an element, writes the representation on out
+ */
 void save_el(el e, char out[])
 {
   sprintf(out, "%lu %lu %f", row(pos(e)), col(pos(e)), val(e));
 }
 
 
-/* get element from string */
+/* 
+ * get element from string 
+ * the string has the format: <ulong> <ulong> <double>
+ */
 el str_to_el(char *input)
 {
   el e;
