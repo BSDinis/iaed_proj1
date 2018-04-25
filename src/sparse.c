@@ -382,34 +382,39 @@ void sort_sparse(sparse *m, bool col)
 /* print a row */
 void print_row_i(sparse m, unsigned long row_i)
 {
-  el list[width_sparse(m)];
-  unsigned long i, j, len_list;
+  int index[width_sparse(m)];
+  unsigned long i;
+  double val; 
+  bool emptyrow = true;
 
-  /* quick check */
-  if (nelem(m) == 0 || row_i < row(min(m)) || row_i > row(max(m))) {
+  if (empty_sparse(m) || row_i < row(min(m)) || row_i > row(max(m))) {
     printf("empty line\n");
     return;
   }
 
-  for (i = len_list = 0; i < nelem(m); i++) {
+  for (i = 0; i < width_sparse(m); index[i++] = -1);
+
+  for (i = 0; i < nelem(m); i++) {
     if (row(pos(list(m)[i])) == row_i) {
-      list[len_list++] = list(m)[i];
+      index[col(pos(list(m)[i])) - col(min(m))] = i;
+      emptyrow = false;
     }
   }
-  if (len_list == 0) {
+
+  if (emptyrow) {
     printf("empty line\n");
     return;
   }
 
-  counting_sort(list, 0, len_list - 1, col(min(m)), col(max(m)), &key_col);
-
-  for (i = col(min(m)), j = 0; i <= col(max(m)); i++) {
-    if (j < len_list && col(pos(list[j])) == i) {
-      printf(" %.3f", val(list[j++]));
+  for (i = 0; i < width_sparse(m); i++) {
+    if (index[i] == -1) {
+      val = zero(m);
     }
     else {
-      printf(" %.3f", zero(m));
+      val = val(list(m)[index[i]]);
     }
+
+    printf(" %.3f", val);
   }
   printf("\n");
 }
@@ -417,34 +422,40 @@ void print_row_i(sparse m, unsigned long row_i)
 /* print a col */
 void print_col_j(sparse m, unsigned long col_j)
 {
-  el list[height_sparse(m)];
-  unsigned long i, j, len_list;
   char str[BUFFER_OUT_EL];
+  int index[height_sparse(m)];
+  unsigned long i;
+  el e; 
+  bool emptycol = true;
 
-  if (nelem(m) == 0|| col_j < col(min(m)) || col_j > col(max(m))) {
+  if (empty_sparse(m) || col_j < col(min(m)) || col_j > col(max(m))) {
     printf("empty column\n");
     return;
   }
 
-  for (i = len_list = 0; i < nelem(m); i++) {
+  for (i = 0; i < height_sparse(m); index[i++] = -1);
+
+  for (i = 0; i < nelem(m); i++) {
     if (col(pos(list(m)[i])) == col_j) {
-      list[len_list++] = list(m)[i];
+      index[row(pos(list(m)[i])) - row(min(m))] = i;
+      emptycol = false;
     }
   }
-  if (len_list == 0) {
+
+  if (emptycol) {
     printf("empty column\n");
     return;
   }
 
-  counting_sort(list, 0, len_list - 1, row(min(m)), row(max(m)), &key_row);
-
-  for (i = row(min(m)), j = 0; i <= row(max(m)); i++) {
-    if (j < len_list && row(pos(list[j])) == i) {
-      out_el(list[j++], str);
+  for (i = 0; i < height_sparse(m); i++) {
+    if (index[i] == -1) {
+      e = init_el(zero(m), init_pos(i + row(min(m)), col_j));
     }
     else {
-      out_el(init_el(zero(m), init_pos(i, col_j)), str);
+      e = list(m)[index[i]];
     }
+
+    out_el(e, str);
     printf("%s\n", str);
   }
 }
