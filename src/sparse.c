@@ -453,7 +453,7 @@ void print_col_j(sparse m, unsigned long col_j)
       out_el(list[k++], str);
     }
     else {
-      out_el(init_el(0, init_pos(i, col_j)), str);
+      out_el(init_el(zero(m), init_pos(i, col_j)), str);
     }
     printf("%s\n", str);
   }
