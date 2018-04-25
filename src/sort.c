@@ -13,13 +13,13 @@
 #include "sparse.h"
 
 /* gets the first key: row of the position */
-unsigned key_row(item a)
+unsigned long key_row(item a)
 {
   return row(pos(a));
 }
 
 /* gets the second key: col of the position */
-unsigned key_col(item a)
+unsigned long key_col(item a)
 {
   return col(pos(a));
 }
@@ -34,7 +34,7 @@ unsigned key_col(item a)
  * M: maximum value of the key of the items of the list
  * key: returns the key to be considered
  */
-void counting_sort(item list[], int l, int r, unsigned m, unsigned M, unsigned (*key)(item))
+void counting_sort(item list[], int l, int r, unsigned long m, unsigned long M, unsigned long (*key)(item))
 {
   /* size_cnt is the number of possible keys */
   /* size_aux is the number of elements in list */
@@ -74,8 +74,8 @@ void counting_sort(item list[], int l, int r, unsigned m, unsigned M, unsigned (
  * radix_sort(list, l, r, m_list, M_list, 
  * {<function that selects y>, <function that selects, x>, 2)
  */
-void radix_sort(item list[], int l, int r, unsigned m_list[], 
-    unsigned M_list[], unsigned (*key_arr[])(item), int arglen)
+void radix_sort(item list[], int l, int r, unsigned long m_list[], 
+    unsigned long M_list[], unsigned long (*key_arr[])(item), int arglen)
 {
   int i;
   for (i = 0; i < arglen; i++) {

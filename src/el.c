@@ -35,7 +35,7 @@ void out_el(el e, char out[])
 /* output string to save to file */
 void save_el(el e, char out[])
 {
-  sprintf(out, "%u %u %f", row(pos(e)), col(pos(e)), val(e));
+  sprintf(out, "%lu %lu %f", row(pos(e)), col(pos(e)), val(e));
 }
 
 
@@ -43,6 +43,6 @@ void save_el(el e, char out[])
 el str_to_el(char *input)
 {
   el e;
-  sscanf(input, "%u %u %lf", &row(pos(e)), &col(pos(e)), &val(e));
+  sscanf(input, "%lu %lu %lf", &row(pos(e)), &col(pos(e)), &val(e));
   return e;
 }

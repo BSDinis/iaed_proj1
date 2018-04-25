@@ -149,16 +149,16 @@ void add(sparse *m, char *cmd)
 /* prints an entire row of the matrix */
 void print_row(sparse m, char *cmd)
 {
-  unsigned i;
-  sscanf(cmd + 2, "%u", &i);
+  unsigned long i;
+  sscanf(cmd + 2, "%lu", &i);
   print_row_i(m, i);
 }
 
 /* prints an entire column of the matrix */
 void print_col(sparse m, char *cmd)
 {
-  unsigned j;
-  sscanf(cmd + 2, "%u", &j);
+  unsigned long j;
+  sscanf(cmd + 2, "%lu", &j);
   print_col_j(m, j);
 }
 

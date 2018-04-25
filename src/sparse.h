@@ -36,7 +36,7 @@ typedef struct {
   el list[MAX_N_ELEM];
   double zero;
   pos min, max;
-  unsigned int nelem;
+  unsigned long int nelem;
 } sparse;
 
 
@@ -51,9 +51,9 @@ typedef struct {
 #define empty_sparse(a) (nelem(a) == 0)
 
 /* computes the size of the complete matrix */
-#define height_sparse(a) ((unsigned) (row(max((a))) - row(min((a))) + 1))
-#define width_sparse(a) ((unsigned) (col(max((a))) - col(min((a))) + 1))
-#define size_sparse(a) ((unsigned) width_sparse(a) * height_sparse(a))
+#define height_sparse(a) ((unsigned long) (row(max((a))) - row(min((a))) + 1))
+#define width_sparse(a) ((unsigned long) (col(max((a))) - col(min((a))) + 1))
+#define size_sparse(a) ((unsigned long) width_sparse(a) * height_sparse(a))
 
 /* computes the density of a matrix */
 #define density_sparse(a) (((double) nelem(m)) / size_sparse(m))
@@ -94,9 +94,9 @@ void change_zero(sparse *m, double new_zero);
 void sort_sparse(sparse *m, bool col);
 
 /* print a row */
-void print_row_i(sparse m, unsigned row_i);
+void print_row_i(sparse m, unsigned long row_i);
 
 /* print a col */
-void print_col_j(sparse m, unsigned col_j);
+void print_col_j(sparse m, unsigned long col_j);
 
 #endif /* !SPARSE_H */

@@ -14,7 +14,7 @@
 #define min(a, b) ((a < b) ? a : b)
 
 /* constructor */
-pos init_pos(unsigned i, unsigned j)
+pos init_pos(unsigned long i, unsigned long j)
 {
   pos p;
   p.i = i;
@@ -25,7 +25,7 @@ pos init_pos(unsigned i, unsigned j)
 /* output string */
 void out_pos(pos p, char *out)
 {
-  sprintf(out, "[%u;%u]", row(p), col(p));
+  sprintf(out, "[%lu;%lu]", row(p), col(p));
 }
 
 

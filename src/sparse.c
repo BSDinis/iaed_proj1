@@ -35,13 +35,13 @@ static sparse init_new_sparse();
 static sparse file_to_sparse(char *filename);
 
 /* removes element from a position in the list */
-static void remove_at(sparse *m, unsigned index);
+static void remove_at(sparse *m, unsigned long index);
 
 /* updates max and min */
 static void update_max_min(sparse *m);
 
 /* removes elements from several positions */
-static void remove_mult(sparse *m, unsigned index[], unsigned len);
+static void remove_mult(sparse *m, unsigned long index[], unsigned long len);
 
 
 /*-------------------------------*/
@@ -218,7 +218,7 @@ bool add_el(sparse *m, el e)
  *
  * note: doesn't make any verifications on what was on the position
  */
-static void remove_at(sparse *m, unsigned index)
+static void remove_at(sparse *m, unsigned long index)
 {
   int i;
 
@@ -266,7 +266,7 @@ static void update_max_min(sparse *m)
  * removes elements from several positions in the
  * ordered list indices[]
  */
-static void remove_mult(sparse *m, unsigned indices[], unsigned len)
+static void remove_mult(sparse *m, unsigned long indices[], unsigned long len)
 {
   pos nmin = init_pos(UINT_MAX, UINT_MAX), nmax = init_pos(0, 0);
   int i, j, k;
@@ -322,7 +322,7 @@ void print_charact_sparse(sparse m)
     return;
   }
 
-  printf("[%u %u] [%u %u] %u / %u = %.3f%%\n",
+  printf("[%lu %lu] [%lu %lu] %lu / %lu = %.3f%%\n",
       row(min(m)), col(min(m)), row(max(m)), col(max(m)),
       nelem(m), size_sparse(m), 100 * density_sparse(m));
 }
@@ -334,8 +334,8 @@ void print_charact_sparse(sparse m)
  */
 void change_zero(sparse *m, double new_zero)
 {
-  unsigned indices[MAX_N_ELEM];
-  unsigned i, j;
+  unsigned long indices[MAX_N_ELEM];
+  unsigned long i, j;
 
   if (new_zero == zero(*m) || empty_sparse(*m)) return;
 
@@ -361,8 +361,8 @@ void sort_sparse(sparse *m, bool col)
    * is not a constant as it would be more confusing and would not have
    * any purpose, since we need to assign values to the lists in each
    * position */
-  unsigned m_list[2], M_list[2];
-  unsigned (*key_arr[2])(item);
+  unsigned long m_list[2], M_list[2];
+  unsigned long (*key_arr[2])(item);
 
   /* variables a and b avoid code repetition */
   int a, b;
@@ -389,10 +389,10 @@ void sort_sparse(sparse *m, bool col)
 
 
 /* print a row */
-void print_row_i(sparse m, unsigned row_i)
+void print_row_i(sparse m, unsigned long row_i)
 {
   el list[MAX_N_ELEM];
-  unsigned i, j, k;
+  unsigned long i, j, k;
 
   if (row_i < row(min(m)) || row_i > row(max(m))) {
     printf("empty line\n");
@@ -424,9 +424,9 @@ void print_row_i(sparse m, unsigned row_i)
 }
 
 /* print a col */
-void print_col_j(sparse m, unsigned col_j)
+void print_col_j(sparse m, unsigned long col_j)
 {
-  unsigned i, j, k;
+  unsigned long i, j, k;
   el list[MAX_N_ELEM];
   char str[BUFFER_OUT_EL];
 

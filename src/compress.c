@@ -16,25 +16,25 @@
 /*-------------------------------*/
 
 /* compresses a matrix into 3 arrays */
-static unsigned compress(sparse m, double vals[], unsigned rows[], unsigned offsets[]);
+static unsigned long compress(sparse m, double vals[], unsigned long rows[], unsigned long offsets[]);
 
 /* fills two arrays:
  *   1) list (a 2d array): in each position d, has the indices of the 
  *                         rows whose density is d
  *   2) size: has the number of rows whose density is d
  */
-/*static unsigned list_rows_by_density(sparse m, unsigned list[][min_int(height_sparse(m), nelem(m)) + 1 + 1]);*/
-static void list_rows_by_density(sparse m, unsigned rows[min_int(height_sparse(m), nelem(m)) + 1]);
+/*static unsigned long list_rows_by_density(sparse m, unsigned long list[][min_int(height_sparse(m), nelem(m)) + 1 + 1]);*/
+static void list_rows_by_density(sparse m, unsigned long rows[min_int(height_sparse(m), nelem(m)) + 1]);
 
 /* calculates the density of the ith row of a sparse matrix */
-/* static unsigned row_density(sparse m, unsigned i); */
+/* static unsigned long row_density(sparse m, unsigned long i); */
 
 /* 
  * finds a slot for the ith line of the sparse matrix in the compressed vector;
  * fills in both the values and the line vector
  * returns the offset
  */
-static unsigned find_slot(sparse m, double vals[], unsigned rows[], unsigned vals_len,  unsigned i);
+static unsigned long find_slot(sparse m, double vals[], unsigned long rows[], unsigned long vals_len,  unsigned long i);
 
 
 /*
@@ -44,7 +44,7 @@ static unsigned find_slot(sparse m, double vals[], unsigned rows[], unsigned val
  * false: they don't overlap
  * (note: the zero(m) is not considered a filled position)
  */
-static bool overlap(double a[], el b[], unsigned len_b, unsigned offset, unsigned left_col, double zero);
+static bool overlap(double a[], el b[], unsigned long len_b, unsigned long offset, unsigned long left_col, double zero);
 
 /*-------------------------------*/
 /*-------------------------------*/
@@ -53,10 +53,10 @@ static bool overlap(double a[], el b[], unsigned len_b, unsigned offset, unsigne
 void compress_sparse(sparse m)
 {
   double vals[nelem(m) * 2];
-  unsigned rows[nelem(m) * 2];
-  unsigned offsets[nelem(m)];
-  unsigned compressed_len;
-  unsigned i;
+  unsigned long rows[nelem(m) * 2];
+  unsigned long offsets[nelem(m)];
+  unsigned long compressed_len;
+  unsigned long i;
 
   /* check for dense matrices */
   if (density_sparse(m) > 0.5) {
@@ -74,20 +74,20 @@ void compress_sparse(sparse m)
   printf("\n");
   
   printf("index =");
-  for (i = 0; i < compressed_len; i++) printf(" %u", rows[i]);
+  for (i = 0; i < compressed_len; i++) printf(" %lu", rows[i]);
   printf("\n");
 
   printf("offset =");
-  for (i = 0; i < height_sparse(m); i++) printf(" %u", offsets[i]);
+  for (i = 0; i < height_sparse(m); i++) printf(" %lu", offsets[i]);
   printf("\n");
 }
 
 /* auxiliar function: applies the actual compression algorithm 
  * returns the length of the compressed vectors (vals and rows)*/
-static unsigned compress(sparse m, double vals[], unsigned rows[], unsigned offsets[])
+static unsigned long compress(sparse m, double vals[], unsigned long rows[], unsigned long offsets[])
 {
-  unsigned row_dens[height_sparse(m)];
-  unsigned compressed_len, max_offset;
+  unsigned long row_dens[height_sparse(m)];
+  unsigned long compressed_len, max_offset;
   int i, row;
   
 
@@ -116,11 +116,11 @@ static unsigned compress(sparse m, double vals[], unsigned rows[], unsigned offs
  * rows[] ordered by density (decreasing) and row (increasing)
  * ie if two rows have the same density, the one with lesser line comes first
  */
-static void list_rows_by_density(sparse m, unsigned row_dens[min_int(height_sparse(m), nelem(m)) + 1])
+static void list_rows_by_density(sparse m, unsigned long row_dens[min_int(height_sparse(m), nelem(m)) + 1])
 {
-  unsigned max_size = min_int(height_sparse(m), nelem(m)) + 1;
-  unsigned dens[max_size];
-  unsigned max_dens_row, max_dens;
+  unsigned long max_size = min_int(height_sparse(m), nelem(m)) + 1;
+  unsigned long dens[max_size];
+  unsigned long max_dens_row, max_dens;
   int i, j;
 
   /* initialize at 1: zero is for checked out lines */
@@ -148,10 +148,10 @@ static void list_rows_by_density(sparse m, unsigned row_dens[min_int(height_spar
 }
 
 /* calculates the density of the ith row of a sparse matrix 
-static unsigned row_density(sparse m, unsigned i)
+static unsigned long row_density(sparse m, unsigned long i)
 {
-  unsigned cnt = 0;
-  unsigned j = 0;
+  unsigned long cnt = 0;
+  unsigned long j = 0;
   while(j != nelem(m)) {
     if (row(pos(list(m)[j++])) == i) {
       cnt++;
@@ -168,10 +168,10 @@ static unsigned row_density(sparse m, unsigned i)
  * fills in both the values and the row vector
  * returns the offset
  */
-static unsigned find_slot(sparse m, double vals[], unsigned rows[], unsigned vals_len,  unsigned i)
+static unsigned long find_slot(sparse m, double vals[], unsigned long rows[], unsigned long vals_len,  unsigned long i)
 {
   el row[width_sparse(m) + 1];
-  unsigned j, k, offset;
+  unsigned long j, k, offset;
 
   for (j = 0, k = 0; j < nelem(m); j++) {
     if (row(pos(list(m)[j])) == i) {
@@ -208,9 +208,9 @@ static unsigned find_slot(sparse m, double vals[], unsigned rows[], unsigned val
  * false: they don't overlap
  * (note: the zero is not considered a filled position)
  */
-static bool overlap(double a[], el b[], unsigned len_b, unsigned offset, unsigned left_col, double zero)
+static bool overlap(double a[], el b[], unsigned long len_b, unsigned long offset, unsigned long left_col, double zero)
 {
-  unsigned i;
+  unsigned long i;
   for (i = 0; i < len_b; i++) {
     if (a[offset + col(pos(b[i])) - left_col] != zero) {
       return true;
