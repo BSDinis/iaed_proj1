@@ -11,6 +11,7 @@
  * dependencies:
  *   pos
  *   el
+ *   sort
  */
 
 #include <stdio.h>
@@ -26,35 +27,32 @@
 #define max_int(a, b) ((a > b) ? a : b)
 #define min_int(a, b) ((a < b) ? a : b)
 
-#define inside_sparse(m, e) (row(pos(e)) >= row(min(m)) && row(pos(e)) <= row(max(m)) && col(pos(e)) >= col(min(m)) && col(pos(e)) <= col(max(m)))
-
 /*-------------------------------*/
 /* prototypes */
 /*-------------------------------*/
 
-/* creates new instance of a sparse matrix */
 static sparse init_new_sparse();
 
-/* converts a file to a sparse matrix */
 static sparse file_to_sparse(char *filename);
 
-/* removes element from a position in the list */
 static void remove_at(sparse *m, unsigned long index);
 
-/* updates max and min */
 static void update_max_min(sparse *m);
 
-/* removes elements from several positions */
-static void remove_mult(sparse *m, unsigned long index[], unsigned long len);
+static void remove_mult(sparse *m, int indices[], int len);
 
 
 /*-------------------------------*/
 /*-------------------------------*/
 /*-------------------------------*/
+
+
 /* 
- * initializes a matrix
- * may take a filename as input, in which case tries to load 
- * matrix of a *.sm file; if it fails, initializes a new matrix
+ * inputs: variable;
+ *   case n != 1: initializes empty sparse (isn't n == 0, because of paranoia)
+ *   case n == 1: initializes a sparse from a file, and the filename is the input
+ *
+ * return: sparse matrix
  */
 sparse init_sparse(int n, ...)
 {
@@ -74,13 +72,12 @@ sparse init_sparse(int n, ...)
 }
 
 /* 
- * creates new instance of a sparse matrix 
+ * returns:creates new instance of a sparse matrix 
  *
- * the list starts with 100 elements, growing by a factor of 10
- * each time it is necessary, until it reaches the maximum size
- *
- * by omission, the zero is 0 and the min and max position are 
- * the same: (0, 0).
+ * by omission:
+ *   the zero is 0
+ *   the max is (0, 0)
+ *   the min is (ULONG_MAX, ULONG_MAX)
  */
 static sparse init_new_sparse()
 {
@@ -96,17 +93,14 @@ static sparse init_new_sparse()
 
 
 /* 
- * converts a file to a sparse matrix
+ * input: filename string
+ * return: sparse
  *
- * return codes:
- *   0: sucessful coversion
- *   1: unsucessful coversion
- *  
+ * converts a file to a sparse matrix
  */
 static sparse file_to_sparse(char *filename)
 {
   FILE *fp;
-  int i = 0;
   sparse m = init_new_sparse();
   char input[BUFFER_OUT_EL];
 
@@ -121,23 +115,17 @@ static sparse file_to_sparse(char *filename)
   /* get the input until
    * the maxsize of the sparse is reached 
    * the fgets unsuccessfully returns */
-  while (fgets(input, BUFFER_OUT_EL, fp) != NULL && add_el(&m, str_to_el(input))) {
-    i++;
-  }
+  while (fgets(input, BUFFER_OUT_EL, fp) != NULL 
+      && add_el(&m, str_to_el(input)));
 
   fclose(fp);
   return m;
 }
 
-/* exporting */
 
 /*
+ * inputs: sparse matrix, name of the file in which to write
  * converts a matrix into a file
- *
- * saves the matrix to file as it will be read:
- * the first three lines are the allocd, nelem and zero values
- * the proceding nelem lines are the elements
- *
  */
 void sparse_to_file(sparse m, char *filename)
 {                                                                   
@@ -151,16 +139,18 @@ void sparse_to_file(sparse m, char *filename)
     save_el(list(m)[i], str);
     fprintf(fp, "%s\n", str);
   }
+
   fclose(fp);
 }
 
 
-
 /*
+ * input: ptr to sparse, element to add
+ *
  * adds a new element to the matrix
+ *
  * if the value is 'zero', removes the value in that position
  * if the position has a value, replace it.
- * may have to reallocate memory for the list
  * 
  * Return codes:
  *   true: Successful operation
@@ -204,6 +194,8 @@ bool add_el(sparse *m, el e)
 
 
 /*
+ * input: ptr to sparse matrix, index for the list in the matrix
+ *
  * removes element from a position in the list
  *
  * note: doesn't make any verifications on what was on the position
@@ -226,7 +218,9 @@ static void remove_at(sparse *m, unsigned long index)
 }
 
 /*
- * updates max and min
+ * input: ptr to sparse matrix
+ *
+ * updates the max and min of a sparse 
  *
  * may be necessary, since when removing there is no way of knowing
  * if the element was the one defining the max or min
@@ -234,34 +228,38 @@ static void remove_at(sparse *m, unsigned long index)
 static void update_max_min(sparse *m)
 {
   int i;
-  pos nmin = init_pos(ULONG_MAX, ULONG_MAX), nmax = init_pos(0, 0);
+  min(*m) = init_pos(ULONG_MAX, ULONG_MAX);
+  max(*m) = init_pos(0, 0);
 
   for (i = 0; i < nelem(*m); i++) {
-    nmax = max_pos(nmax, pos(list(*m)[i]));
-    nmin = min_pos(nmin, pos(list(*m)[i]));
+    max(*m) = max_pos(max(*m), pos(list(*m)[i]));
+    min(*m) = min_pos(min(*m), pos(list(*m)[i]));
   }
-  
-  max(*m) = nmax;
-  min(*m) = nmin;
 }
 
 
 /*
+ * inputs:
+ *   ptr to sparse matrix
+ *   vector (of len <len>) of indices to be removed 
+ *
  * removes elements from several positions in the
  * ordered list indices[]
+ * updates the matrix (list of elements, max, min, and number of elements)
  */
-static void remove_mult(sparse *m, unsigned long indices[], unsigned long len)
+static void remove_mult(sparse *m, int indices[], int len)
 {
   int i, j, k;
-  pos nmin = init_pos(ULONG_MAX, ULONG_MAX), nmax = init_pos(0, 0);
-
   if (len == 0) return;
+
+  min(*m) = init_pos(ULONG_MAX, ULONG_MAX);
+  max(*m) = init_pos(0, 0);
 
   for (i = j = k = 0; i < nelem(*m); i++) {
     if (k >= len || i != indices[k]) {
       list(*m)[j] = list(*m)[i];
-      nmax = max_pos(nmax, pos(list(*m)[j]));
-      nmin = min_pos(nmin, pos(list(*m)[j]));
+      max(*m) = max_pos(max(*m), pos(list(*m)[j]));
+      min(*m) = min_pos(min(*m), pos(list(*m)[j]));
       j++;
     }
     else {
@@ -269,14 +267,15 @@ static void remove_mult(sparse *m, unsigned long indices[], unsigned long len)
     }
   }
 
-  max(*m) = nmax;
-  min(*m) = nmin;
   nelem(*m) = j;
 }
 
 
 /*
- * prints all the elements on a sparse matrix
+ * input: sparse matrix
+ *
+ * output: all the elements on a sparse matrix
+ *
  * if the matrix is empty, print "empty matrix"
  */
 void print_sparse(sparse m)
@@ -297,7 +296,11 @@ void print_sparse(sparse m)
 
 
 /*
- * prints the carachteristics of a sparse matrix
+ * input: sparse matrix
+ *
+ * output: carachteristics of a sparse matrix
+ *
+ * if the matrix is empty, print "empty matrix"
  */
 void print_charact_sparse(sparse m)
 {
@@ -313,14 +316,19 @@ void print_charact_sparse(sparse m)
 
 
 /*
+ * inputs: ptr to matrix, new value of zero
+ *
  * changes the value of zero
- * removes all occurrences of zero in the list
+ *
+ * removes all occurrences of the new zero in the list
  */
 void change_zero(sparse *m, double new_zero)
 {
-  unsigned long indices[MAX_N_ELEM];
-  unsigned long i, j;
+  int indices[MAX_N_ELEM];
+  int i, j;
 
+  /* if the new zero is the old one or if the matrix is empty,
+   * there is nothing to be done */
   if (new_zero == zero(*m) || empty_sparse(*m)) return;
 
   zero(*m) = new_zero;
@@ -334,9 +342,11 @@ void change_zero(sparse *m, double new_zero)
 }
 
 
-
-
-/* print a row */
+/* 
+ * inputs: sparse matrix, index of the row to be printed
+ *
+ * output: row, represented by its values
+ */
 void print_row_i(sparse m, unsigned long row_i)
 {
   int index[width_sparse(m)];
@@ -344,11 +354,14 @@ void print_row_i(sparse m, unsigned long row_i)
   double val; 
   bool emptyrow = true;
 
+  /* first check for an empty row:
+   * empty_sparse or row index out of bounds */
   if (empty_sparse(m) || row_i < row(min(m)) || row_i > row(max(m))) {
     printf("empty line\n");
     return;
   }
 
+  /* initialize index at zero to distinguish from 0th row */
   for (i = 0; i < width_sparse(m); index[i++] = -1);
 
   for (i = 0; i < nelem(m); i++) {
@@ -376,7 +389,11 @@ void print_row_i(sparse m, unsigned long row_i)
   printf("\n");
 }
 
-/* print a col */
+/* 
+ * inputs: sparse matrix, index of the column to be printed
+ *
+ * output: column, represented by its elements, printed by out_el
+ */
 void print_col_j(sparse m, unsigned long col_j)
 {
   char str[BUFFER_OUT_EL];
@@ -385,11 +402,14 @@ void print_col_j(sparse m, unsigned long col_j)
   el e; 
   bool emptycol = true;
 
+  /* first check for an empty column:
+   * empty_sparse or column index out of bounds */
   if (empty_sparse(m) || col_j < col(min(m)) || col_j > col(max(m))) {
     printf("empty column\n");
     return;
   }
 
+  /* initialize index at zero to distinguish from 0th row */
   for (i = 0; i < height_sparse(m); index[i++] = -1);
 
   for (i = 0; i < nelem(m); i++) {

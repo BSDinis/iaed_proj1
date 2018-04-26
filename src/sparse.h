@@ -26,7 +26,6 @@
  * min: the position which has the smallest column and row
  * max: the position which has the biggest column and row
  * nelem: number of elements <-> first free position in the list
- * allocd: current number of allocated elements in the list
  */
 typedef struct {
   el list[MAX_N_ELEM];
@@ -54,41 +53,26 @@ typedef struct {
 /* computes the density of a matrix */
 #define density_sparse(a) (((double) nelem(m)) / size_sparse(m))
 
-/* constructor */
+/* checks if an element's position is inside the limits of a sparse matrix */
+#define inside_sparse(m, e) (row(pos(e)) >= row(min(m)) && row(pos(e)) <= row(max(m)) && col(pos(e)) >= col(min(m)) && col(pos(e)) <= col(max(m)))
 
-/* 
- * initializes a matrix
- * 
- * n: number of extra arguments; should be 0 or 1,
- * but treats any other value as 0, creating a new matrix
- */
 sparse init_sparse(int n, ...);
 
-/* destructor */
-void free_sparse(sparse m);
+void sparse_to_file(sparse m, char filename[]);
 
-/* exporting */
-/* converts a matrix into a file */
-void sparse_to_file(sparse m, char *filename);
 
 /* operations */
 
-/* adds a new element to the matrix */
 bool add_el(sparse *m, el e);
 
-/* prints all the elements on a sparse matrix */
 void print_sparse(sparse m);
 
-/* prints the carachteristics of a sparse matrix */
 void print_charact_sparse(sparse m);
 
-/* changes the value of zero */
 void change_zero(sparse *m, double new_zero);
 
-/* print a row */
 void print_row_i(sparse m, unsigned long row_i);
 
-/* print a col */
 void print_col_j(sparse m, unsigned long col_j);
 
 #endif /* !SPARSE_H */
