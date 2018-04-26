@@ -25,6 +25,11 @@ static unsigned long key_col(el a);
 static void counting_sort(el list[], int l, int r, unsigned long m,
     unsigned long M, unsigned long (*key)(el));
 
+static void insertion_sort(el list[], int l, int r, unsigned long (*key)(el));
+
+static void sort_list(el list[], int l, int r, unsigned long m, 
+    unsigned long M, unsigned long (*key)(el));
+
 static void radix_sort(el list[], int l, int r, unsigned long m_list[],
     unsigned long M_list[], unsigned long (*key_arr[])(el), int arglen);
 
@@ -94,6 +99,59 @@ static void counting_sort(el list[], int l, int r, unsigned long m,
 }
 
 
+/*
+ * input:
+ *   list: element list to be sorted (becomes ordered)
+ *   l: leftmost position
+ *   r: rightmost position
+ *   key: returns the key for an element
+ */
+static void insertion_sort(el list[], int l, int r, unsigned long (*key)(el))
+{
+  int i, j;
+  el v;
+
+  for (i = l + 1; i <= r; i++) {
+    v = list[i];
+    j = i - 1;
+
+    while (j >= l && (*key)(v) < (*key)(list[j])) {
+      list[j + 1] = list[j];
+      j--;
+    }
+
+    list[j + 1] = v;
+  }
+}
+
+
+/*
+ * sorts a list of elements, using either a counting sort or an insertion
+ * sort, depending on the conditions given.
+ *
+ * inputs:
+ * list: becomes ordered 
+ * l: leftmost position to consider
+ * r: rightmost position to consider
+ * m: minimum value of the key of the els of the list
+ * M: maximum value of the key of the els of the list
+ * key: returns the key to be considered
+ */
+static void sort_list(el list[], int l, int r, unsigned long m, 
+    unsigned long M, unsigned long (*key)(el))
+{
+  unsigned long a = r - l + 1, b = M - m + 1;
+  /* counting is O(a + b) and insertion is O(a * a) */
+  if (b < a * a) {
+    counting_sort(list, l, r, m, M, key);
+  }
+  else {
+    insertion_sort(list, l, r, key);
+  }
+}
+
+
+
 /* 
  * implements radix sort LSD using n key functions, 
  * given in a list of function pointers, with ascending significance
@@ -120,7 +178,7 @@ static void radix_sort(el list[], int l, int r, unsigned long m_list[],
 {
   int i;
   for (i = 0; i < arglen; i++) {
-    counting_sort(list, l, r, m_list[i], M_list[i], key_arr[i]);
+    sort_list(list, l, r, m_list[i], M_list[i], key_arr[i]);
   }
 }
 
