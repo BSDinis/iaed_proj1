@@ -20,50 +20,56 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "sparse.h"
 #include "compress.h"
 #include "sort.h"
 
-/* size of the buffer string to store the command 
+/* 
+ * size of the buffer string to store the command 
  * worst case scenario is to add an element, which needs less than 350 chars
- * alloc 512 for good measure */
+ * alloc 512 for good measure 
+ */
 #define CMD_BUFFER 512
 
-/* gets a string with a command 
- * returns false if the command is quit or the stream reached EOF */
-bool get_command(char cmd[CMD_BUFFER+1]);
+/* note: the command arguments start on the 2nd position
+ * eg: "a <row> <col> <val>" 
+ * for that reason, reading from cmd + 2 is common
+ */
 
-/* adds a new element to the matrix */
-void add(sparse *m, char cmd[CMD_BUFFER+1]);
+/*-------------------------------*/
+/* prototypes */
+/*-------------------------------*/
 
-/* prints an entire row of the matrix */
-void print_row(sparse m, char cmd[CMD_BUFFER+1]);
+bool get_command(char cmd[CMD_BUFFER + 1]);
 
-/* prints an entire column of the matrix */
-void print_col(sparse m, char cmd[CMD_BUFFER+1]);
+void add(sparse *m, char cmd[CMD_BUFFER + 1]);
 
-/* sorts a sparse matrix, with regard to either the cols or the rows */
-void sort(sparse *m, char cmd[CMD_BUFFER+1]);
+void print_row(sparse m, char cmd[CMD_BUFFER + 1]);
 
-/* changes the value of zero of a matrix */
-void ch_zero(sparse *m, char cmd[CMD_BUFFER+1]);
+void print_col(sparse m, char cmd[CMD_BUFFER + 1]);
 
-/* saves a matrix to a file */
-void write_sparse(sparse m, char cmd[CMD_BUFFER+1], char filename[MAX_FILENAME + 1]);
+void sort(sparse *m, char cmd[CMD_BUFFER + 1]);
+
+void ch_zero(sparse *m, char cmd[CMD_BUFFER + 1]);
+
+void write_sparse(sparse m, char cmd[CMD_BUFFER + 1], char filename[MAX_FILENAME + 1]);
+
+/*-------------------------------*/
+/*-------------------------------*/
+/*-------------------------------*/
 
 
 int main(int argc, char *argv[])
 {
   sparse m;
   char cmd[CMD_BUFFER + 1];
-  char filename[MAX_FILENAME + 1];
+  char filename[MAX_FILENAME + 1] = {'\0'};
   char command;
 
-  /* ensure the filename starts as an empty string */
-  filename[0] = '\0';
 
-  if (argc >= 2) {
+  if (argc == 2) {
     strcpy(filename, argv[1]);
     m = init_sparse(1, filename);
   }
@@ -123,49 +129,67 @@ int main(int argc, char *argv[])
 
 
 /* 
- * gets a string with a command 
- * returns false if the command is quit or the stream reached EOF
+ * input: buffer to be written
+ * writes the command (with the whitespace at the end removed)
  */
-bool get_command(char cmd[CMD_BUFFER+1])
+bool get_command(char cmd[CMD_BUFFER + 1])
 {
+  int i;
   if (fgets(cmd, CMD_BUFFER, stdin) != NULL) {
-    /* remove newline character */
-    if (cmd[strlen(cmd) - 1] == '\n') {
-      cmd[strlen(cmd) - 1] = '\0';  
-      return (strcmp(cmd, "q") != 0);
-    }
+
+    /* remove whitespace*/
+    i = strlen(cmd);
+    while (isspace(cmd[--i]));
+    cmd[i + 1] = '\0';
+    return (strcmp(cmd, "q") != 0);
+
   }
+
   return false;
 }
 
 
-/* adds a new element to the matrix */
-void add(sparse *m, char cmd[CMD_BUFFER+1])
+/* 
+ * input: ptr to sparse, command
+ * 
+ * adds a new element to the matrix
+ */
+void add(sparse *m, char cmd[CMD_BUFFER + 1])
 {
-  /* note: "a <row> <col> <val>" :: the element encoding starts in the 2nd 
-   * position */
   add_el(m, str_to_el(cmd + 2));
 }
 
 
-/* prints an entire row of the matrix */
-void print_row(sparse m, char cmd[CMD_BUFFER+1])
+/* 
+ * input: sparse matrix, command
+ * 
+ * prints an entire row of the matrix
+ */
+void print_row(sparse m, char cmd[CMD_BUFFER + 1])
 {
   unsigned long i;
   sscanf(cmd + 2, "%lu", &i);
   print_row_i(m, i);
 }
 
-/* prints an entire column of the matrix */
-void print_col(sparse m, char cmd[CMD_BUFFER+1])
+/* 
+ * input: sparse matrix, command
+ * 
+ * prints an entire column of the matrix
+ */
+void print_col(sparse m, char cmd[CMD_BUFFER + 1])
 {
   unsigned long j;
   sscanf(cmd + 2, "%lu", &j);
   print_col_j(m, j);
 }
 
-/* sorts a sparse matrix, with regard to either the cols or the rows */
-void sort(sparse *m, char cmd[CMD_BUFFER+1])
+/*
+ * input: ptr to sparse matrix, command
+ *
+ * sorts a matrix either by columns or rows
+ */
+void sort(sparse *m, char cmd[CMD_BUFFER + 1])
 {
   if (strcmp(cmd, "o") == 0) {
     /* sort by rows */
@@ -177,15 +201,23 @@ void sort(sparse *m, char cmd[CMD_BUFFER+1])
   }
 }
   
-/* changes the value of zero of a matrix */
-void ch_zero(sparse *m, char cmd[CMD_BUFFER+1])
+/*
+ * input: ptr to sparse matrix, command
+ *
+ * changes the zero value of a matrix
+ */
+void ch_zero(sparse *m, char cmd[CMD_BUFFER + 1])
 {
   double z;
   sscanf(cmd + 2, "%lf", &z);
   change_zero(m, z);
 }
 
-/* saves a matrix to a file */
+/*
+ * input: sparse matrix, command, filename
+ *
+ * saves the sparse to a file: filename
+ */
 void write_sparse(sparse m, char cmd[CMD_BUFFER + 1], char filename[MAX_FILENAME + 1])
 {
   if (strcmp(cmd, "w") != 0) {
