@@ -33,7 +33,10 @@
  */
 #define CMD_BUFFER 512
 
-/* note: the command arguments start on the 2nd position
+#define DEFAULT_FILENAME "default_matrix.sm"
+
+/* 
+ * note: the command arguments start on the 2nd position
  * eg: "a <row> <col> <val>" 
  * for that reason, reading from cmd + 2 is common
  */
@@ -224,7 +227,9 @@ void write_sparse(sparse m, char cmd[CMD_BUFFER + 1], char filename[MAX_FILENAME
     filename = strcpy(filename, cmd + 2);
   }
 
-  if (strlen(filename) > 0) {
-    sparse_to_file(m, filename);
+  if (strlen(filename) == 0) {
+    filename = DEFAULT_FILENAME;
   }
+
+  sparse_to_file(m, filename);
 }
