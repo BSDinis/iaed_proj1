@@ -18,6 +18,7 @@
 
 #define MAX_N_ELEM 10000
 #define MAX_FILENAME 80 
+#define MAX_VAL_DIFF 10000
 
 /* sparse datatype
  *
@@ -74,5 +75,9 @@ void change_zero(sparse *m, double new_zero);
 void print_row_i(sparse m, unsigned long row_i);
 
 void print_col_j(sparse m, unsigned long col_j);
+
+void print_all_over_diag(sparse m);
+
+void print_n_diff_vals(sparse m);
 
 #endif /* !SPARSE_H */

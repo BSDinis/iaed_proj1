@@ -122,6 +122,12 @@ int main(int argc, char *argv[])
         write_sparse(m, cmd, filename);
         break;
 
+      case 'x':
+        print_all_over_diag(m);
+      
+      case 'y':
+        print_n_diff_vals(m);
+
       default:
         break;
     }
@@ -198,7 +204,7 @@ void sort(sparse *m, char cmd[CMD_BUFFER + 1])
     /* sort by rows */
     sort_sparse(m, false);
   }
-  else {
+  else if (strcmp(cmd, "o column") == 0) {
     /* sort by columns */
     sort_sparse(m, true);
   }

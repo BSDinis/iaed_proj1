@@ -436,3 +436,54 @@ void print_col_j(sparse m, unsigned long col_j)
     printf("%s\n", str);
   }
 }
+
+
+/* 
+ * inputs: sparse matrix
+ *
+ * prints all els over principal diagonal
+ */
+void print_all_over_diag(sparse m)
+{
+  size_t i;
+  for (i = 0; i < nelem(m); i++) {
+    if (col(pos(list(m)[i])) > row(pos(list(m)[i]))) {
+      printf("%lf\n", val(list(m)[i]));
+    }
+  }
+}
+    
+
+/*
+ * inputs: sparse matrix
+ *
+ * prints the number of different values on the matrix
+ */
+void print_n_diff_vals(sparse m)
+{
+  double min_val;
+  bool hash[MAX_VAL_DIFF];
+  size_t i;
+  size_t count;
+
+  /* if there are no elements, don't print anything */
+  if (nelem(m) == 0) 
+    return;
+
+  for (i = 0; i < MAX_VAL_DIFF; hash[i++] = false);
+
+  min_val = val(list(m)[0]);
+  for (i = 1; i < nelem(m); i++) {
+    min_val = (val(list(m)[i]) < min_val) ? val(list(m)[i]) : min_val;
+  }
+
+  count = 0;
+  for (i = 0; i < nelem(m); i++) {
+    if (hash[(unsigned long) val(list(m)[i])] == false) {
+      count++;
+      hash[(unsigned long) val(list(m)[i])] = true;
+    }
+  }
+
+  printf("%lu\n", count);
+}

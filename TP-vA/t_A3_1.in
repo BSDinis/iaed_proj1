@@ -1,0 +1,7 @@
+add 1 "task1" 9
+add 200 "task200" 8 1
+add 3 "task3" 7 1
+add 4 "task4" 6 1
+add 5 "task5" 100 1
+first
+exit
